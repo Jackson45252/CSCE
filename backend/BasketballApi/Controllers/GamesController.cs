@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BasketballApi.Data;
@@ -37,6 +38,7 @@ public class GamesController : ControllerBase
             g.HomeScore, g.AwayScore, g.CreatedAt));
     }
 
+    [Authorize]
     [HttpPost]
     public async Task<ApiResponse<GameDto>> Create(GameCreateDto dto)
     {
@@ -61,6 +63,7 @@ public class GamesController : ControllerBase
             game.HomeScore, game.AwayScore, game.CreatedAt));
     }
 
+    [Authorize]
     [HttpPut("{id}")]
     public async Task<ApiResponse<GameDto>> Update(int id, GameUpdateDto dto)
     {
@@ -77,6 +80,7 @@ public class GamesController : ControllerBase
             g.HomeScore, g.AwayScore, g.CreatedAt));
     }
 
+    [Authorize]
     [HttpDelete("{id}")]
     public async Task<ApiResponse<string>> Delete(int id)
     {

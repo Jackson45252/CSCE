@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BasketballApi.Data;
@@ -27,6 +28,7 @@ public class PlayerGameStatsController : ControllerBase
         return ApiResponse<List<StatsDto>>.Ok(list);
     }
 
+    [Authorize]
     [HttpPost]
     public async Task<ApiResponse<StatsDto>> Create(StatsCreateDto dto)
     {
@@ -54,6 +56,7 @@ public class PlayerGameStatsController : ControllerBase
             stats.TotalPoints, stats.CreatedAt));
     }
 
+    [Authorize]
     [HttpPut("{id}")]
     public async Task<ApiResponse<StatsDto>> Update(int id, StatsUpdateDto dto)
     {
@@ -73,6 +76,7 @@ public class PlayerGameStatsController : ControllerBase
             s.TotalPoints, s.CreatedAt));
     }
 
+    [Authorize]
     [HttpDelete("{id}")]
     public async Task<ApiResponse<string>> Delete(int id)
     {

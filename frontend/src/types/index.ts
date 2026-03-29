@@ -95,6 +95,22 @@ export interface TeamTournamentStats {
   tournamentTotalPoints: number;
 }
 
+export interface LoginRequest {
+  username: string;
+  password: string;
+}
+
+export interface LoginResponse {
+  token: string;
+  expiresAt: string;
+}
+
+export interface Admin {
+  id: number;
+  username: string;
+  createdAt: string;
+}
+
 export interface BoxScoreEntry {
   playerId: number;
   playerName: string;

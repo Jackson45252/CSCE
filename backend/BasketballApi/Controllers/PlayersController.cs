@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BasketballApi.Data;
@@ -29,6 +30,7 @@ public class PlayersController : ControllerBase
         return ApiResponse<PlayerDto>.Ok(new PlayerDto(p.Id, p.Name, p.CreatedAt));
     }
 
+    [Authorize]
     [HttpPost]
     public async Task<ApiResponse<PlayerDto>> Create(PlayerCreateDto dto)
     {
@@ -38,6 +40,7 @@ public class PlayersController : ControllerBase
         return ApiResponse<PlayerDto>.Ok(new PlayerDto(player.Id, player.Name, player.CreatedAt));
     }
 
+    [Authorize]
     [HttpPut("{id}")]
     public async Task<ApiResponse<PlayerDto>> Update(int id, PlayerUpdateDto dto)
     {
@@ -47,6 +50,7 @@ public class PlayersController : ControllerBase
         return ApiResponse<PlayerDto>.Ok(new PlayerDto(player.Id, player.Name, player.CreatedAt));
     }
 
+    [Authorize]
     [HttpDelete("{id}")]
     public async Task<ApiResponse<string>> Delete(int id)
     {

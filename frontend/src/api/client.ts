@@ -5,6 +5,15 @@ const api = axios.create({
   baseURL: "http://localhost:5242/api",
 });
 
+// Attach JWT token to every request if available
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 export async function fetchApi<T>(url: string): Promise<T> {
   const { data } = await api.get<ApiResponse<T>>(url);
   if (!data.success) throw new Error(data.error ?? "Unknown error");

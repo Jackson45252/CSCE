@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BasketballApi.Data;
@@ -29,6 +30,7 @@ public class TeamsController : ControllerBase
         return ApiResponse<TeamDto>.Ok(new TeamDto(t.Id, t.Name, t.LogoUrl, t.CreatedAt));
     }
 
+    [Authorize]
     [HttpPost]
     public async Task<ApiResponse<TeamDto>> Create(TeamCreateDto dto)
     {
@@ -38,6 +40,7 @@ public class TeamsController : ControllerBase
         return ApiResponse<TeamDto>.Ok(new TeamDto(team.Id, team.Name, team.LogoUrl, team.CreatedAt));
     }
 
+    [Authorize]
     [HttpPut("{id}")]
     public async Task<ApiResponse<TeamDto>> Update(int id, TeamUpdateDto dto)
     {
@@ -48,6 +51,7 @@ public class TeamsController : ControllerBase
         return ApiResponse<TeamDto>.Ok(new TeamDto(team.Id, team.Name, team.LogoUrl, team.CreatedAt));
     }
 
+    [Authorize]
     [HttpDelete("{id}")]
     public async Task<ApiResponse<string>> Delete(int id)
     {
@@ -70,6 +74,7 @@ public class TeamsController : ControllerBase
         return ApiResponse<List<TeamMemberDto>>.Ok(list);
     }
 
+    [Authorize]
     [HttpPost("{id}/members")]
     public async Task<ApiResponse<TeamMemberDto>> AddMember(int id, TeamMemberCreateDto dto)
     {
@@ -82,6 +87,7 @@ public class TeamsController : ControllerBase
         return ApiResponse<TeamMemberDto>.Ok(new TeamMemberDto(member.Id, member.PlayerId, player.Name, member.JerseyNumber, member.JoinedAt));
     }
 
+    [Authorize]
     [HttpDelete("{id}/members/{memberId}")]
     public async Task<ApiResponse<string>> RemoveMember(int id, int memberId)
     {

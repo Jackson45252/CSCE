@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.Sqlite;
@@ -5,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using BasketballApi.Data;
+using BasketballApi.Tests.Helpers;
 
 namespace BasketballApi.Tests.Integration;
 
@@ -32,6 +34,10 @@ public class CustomWebAppFactory : WebApplicationFactory<Program>
                 options.UseSqlite(_connection);
                 options.ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning));
             });
+
+            // Replace JWT auth with a test scheme that always succeeds
+            services.AddAuthentication("Test")
+                .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>("Test", null);
 
             // Build a temporary service provider to create the schema
             var sp = services.BuildServiceProvider();

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BasketballApi.Data;
@@ -29,6 +30,7 @@ public class TournamentsController : ControllerBase
         return ApiResponse<TournamentDto>.Ok(new TournamentDto(t.Id, t.Name, t.Season, t.StartDate, t.EndDate, t.Status.ToString(), t.CreatedAt));
     }
 
+    [Authorize]
     [HttpPost]
     public async Task<ApiResponse<TournamentDto>> Create(TournamentCreateDto dto)
     {
@@ -46,6 +48,7 @@ public class TournamentsController : ControllerBase
             tournament.StartDate, tournament.EndDate, tournament.Status.ToString(), tournament.CreatedAt));
     }
 
+    [Authorize]
     [HttpPut("{id}")]
     public async Task<ApiResponse<TournamentDto>> Update(int id, TournamentUpdateDto dto)
     {
@@ -59,6 +62,7 @@ public class TournamentsController : ControllerBase
         return ApiResponse<TournamentDto>.Ok(new TournamentDto(t.Id, t.Name, t.Season, t.StartDate, t.EndDate, t.Status.ToString(), t.CreatedAt));
     }
 
+    [Authorize]
     [HttpDelete("{id}")]
     public async Task<ApiResponse<string>> Delete(int id)
     {
@@ -80,6 +84,7 @@ public class TournamentsController : ControllerBase
         return ApiResponse<List<TournamentTeamDto>>.Ok(list);
     }
 
+    [Authorize]
     [HttpPost("{id}/teams")]
     public async Task<ApiResponse<TournamentTeamDto>> AddTeam(int id, AddTeamDto dto)
     {
@@ -92,6 +97,7 @@ public class TournamentsController : ControllerBase
         return ApiResponse<TournamentTeamDto>.Ok(new TournamentTeamDto(tt.Id, tt.TeamId, team.Name, tt.RegisteredAt));
     }
 
+    [Authorize]
     [HttpDelete("{id}/teams/{teamId}")]
     public async Task<ApiResponse<string>> RemoveTeam(int id, int teamId)
     {

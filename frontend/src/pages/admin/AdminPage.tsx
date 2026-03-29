@@ -1,36 +1,41 @@
-import { useState } from "react";
-import PlayerAdmin from "./PlayerAdmin";
-import TeamAdmin from "./TeamAdmin";
-import TournamentAdmin from "./TournamentAdmin";
-import GameAdmin from "./GameAdmin";
-import StatsAdmin from "./StatsAdmin";
+import { NavLink, Outlet, Navigate, useLocation } from "react-router-dom";
 
 const tabs = [
-  { key: "players", label: "球員", component: PlayerAdmin },
-  { key: "teams", label: "隊伍", component: TeamAdmin },
-  { key: "tournaments", label: "賽事", component: TournamentAdmin },
-  { key: "games", label: "比賽", component: GameAdmin },
-  { key: "stats", label: "數據登錄", component: StatsAdmin },
+  { to: "/admin/players", label: "球員" },
+  { to: "/admin/teams", label: "隊伍" },
+  { to: "/admin/tournaments", label: "賽事" },
+  { to: "/admin/games", label: "比賽" },
+  { to: "/admin/stats", label: "數據登錄" },
+  { to: "/admin/accounts", label: "帳號" },
 ];
 
 export default function AdminPage() {
-  const [active, setActive] = useState("players");
-  const ActiveComponent = tabs.find((t) => t.key === active)!.component;
+  const { pathname } = useLocation();
+
+  // /admin 自動導向第一個子頁面
+  if (pathname === "/admin") return <Navigate to="/admin/players" replace />;
 
   return (
     <div>
       <h1 className="text-2xl font-bold text-gray-800 mb-4">管理後台</h1>
-      <div className="flex gap-1 border-b mb-6">
+      <nav className="flex gap-1 border-b mb-6">
         {tabs.map((t) => (
-          <button key={t.key} onClick={() => setActive(t.key)}
-            className={`px-4 py-2 text-sm font-medium border-b-2 transition ${
-              active === t.key ? "border-indigo-600 text-indigo-600" : "border-transparent text-gray-500 hover:text-gray-700"
-            }`}>
+          <NavLink
+            key={t.to}
+            to={t.to}
+            className={({ isActive }) =>
+              `px-4 py-2 text-sm font-medium border-b-2 transition ${
+                isActive
+                  ? "border-indigo-600 text-indigo-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700"
+              }`
+            }
+          >
             {t.label}
-          </button>
+          </NavLink>
         ))}
-      </div>
-      <ActiveComponent />
+      </nav>
+      <Outlet />
     </div>
   );
 }

@@ -14,10 +14,19 @@ public class AppDbContext : DbContext
     public DbSet<TournamentTeam> TournamentTeams => Set<TournamentTeam>();
     public DbSet<Game> Games => Set<Game>();
     public DbSet<PlayerGameStats> PlayerGameStats => Set<PlayerGameStats>();
+    public DbSet<Admin> Admins => Set<Admin>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        // --- Admin ---
+        modelBuilder.Entity<Admin>(e =>
+        {
+            e.Property(a => a.Username).HasMaxLength(50).IsRequired();
+            e.HasIndex(a => a.Username).IsUnique();
+            e.Property(a => a.PasswordHash).HasMaxLength(200).IsRequired();
+        });
 
         // --- Player ---
         modelBuilder.Entity<Player>(e =>

@@ -6,6 +6,17 @@ public static class DbSeeder
 {
     public static void Seed(AppDbContext db)
     {
+        // Seed admin account
+        if (!db.Admins.Any())
+        {
+            db.Admins.Add(new Admin
+            {
+                Username = "admin",
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("admin123")
+            });
+            db.SaveChanges();
+        }
+
         if (db.Players.Any()) return;
 
         // Players
