@@ -21,9 +21,16 @@ if (!string.IsNullOrEmpty(port))
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
-// Database
+// Database — support both ADO.NET and URI (postgresql://) connection string formats
+var connectionString = builder.Configuration.GetConnectionString("Default") ?? "";
+if (connectionString.StartsWith("postgresql://") || connectionString.StartsWith("postgres://"))
+{
+    var uri = new Uri(connectionString);
+    var userInfo = uri.UserInfo.Split(':');
+    connectionString = $"Host={uri.Host};Port={(uri.Port > 0 ? uri.Port : 5432)};Database={uri.AbsolutePath.TrimStart('/')};Username={userInfo[0]};Password={userInfo[1]}";
+}
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
+    options.UseNpgsql(connectionString));
 
 // JWT Authentication
 var jwtKey = builder.Configuration["Jwt:Key"]!;
