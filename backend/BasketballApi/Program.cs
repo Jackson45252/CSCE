@@ -22,13 +22,21 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
 // Database — support both ADO.NET and URI (postgresql://) connection string formats
-var connectionString = builder.Configuration.GetConnectionString("Default") ?? "";
+var connectionString = builder.Configuration.GetConnectionString("Default")
+    ?? Environment.GetEnvironmentVariable("DATABASE_URL")
+    ?? "";
 if (connectionString.StartsWith("postgresql://") || connectionString.StartsWith("postgres://"))
 {
     var uri = new Uri(connectionString);
-    var userInfo = uri.UserInfo.Split(':');
-    connectionString = $"Host={uri.Host};Port={(uri.Port > 0 ? uri.Port : 5432)};Database={uri.AbsolutePath.TrimStart('/')};Username={userInfo[0]};Password={userInfo[1]}";
+    var userInfo = uri.UserInfo.Split(':', 2); // limit 2 in case password contains ':'
+    var username = Uri.UnescapeDataString(userInfo[0]);
+    var password = Uri.UnescapeDataString(userInfo.Length > 1 ? userInfo[1] : "");
+    var database = uri.AbsolutePath.TrimStart('/');
+    var host = uri.Host;
+    var uriPort = uri.Port > 0 ? uri.Port : 5432;
+    connectionString = $"Host={host};Port={uriPort};Database={database};Username={username};Password={password}";
 }
+Console.WriteLine($"[Startup] DB connection target: Host parsed = {(connectionString.Contains("Host=") ? "yes" : "no")}, length = {connectionString.Length}");
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 
