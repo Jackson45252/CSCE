@@ -30,7 +30,7 @@ public class TeamsController : ControllerBase
         return ApiResponse<TeamDto>.Ok(new TeamDto(t.Id, t.Name, t.LogoUrl, t.CreatedAt));
     }
 
-    [Authorize]
+    [Authorize(Roles = "SuperAdmin,TournamentManager")]
     [HttpPost]
     public async Task<ApiResponse<TeamDto>> Create(TeamCreateDto dto)
     {
@@ -40,7 +40,7 @@ public class TeamsController : ControllerBase
         return ApiResponse<TeamDto>.Ok(new TeamDto(team.Id, team.Name, team.LogoUrl, team.CreatedAt));
     }
 
-    [Authorize]
+    [Authorize(Roles = "SuperAdmin,TournamentManager")]
     [HttpPut("{id}")]
     public async Task<ApiResponse<TeamDto>> Update(int id, TeamUpdateDto dto)
     {
@@ -51,7 +51,7 @@ public class TeamsController : ControllerBase
         return ApiResponse<TeamDto>.Ok(new TeamDto(team.Id, team.Name, team.LogoUrl, team.CreatedAt));
     }
 
-    [Authorize]
+    [Authorize(Roles = "SuperAdmin,TournamentManager")]
     [HttpDelete("{id}")]
     public async Task<ApiResponse<string>> Delete(int id)
     {
@@ -59,6 +59,23 @@ public class TeamsController : ControllerBase
         _db.Teams.Remove(team);
         await _db.SaveChangesAsync();
         return ApiResponse<string>.Ok("Deleted");
+    }
+
+    // --- Games ---
+    [HttpGet("{id}/games")]
+    public async Task<ApiResponse<List<GameDto>>> GetGames(int id)
+    {
+        _ = await _db.Teams.FindAsync(id) ?? throw new KeyNotFoundException("Team not found");
+        var list = await _db.Games
+            .Where(g => g.HomeTeamId == id || g.AwayTeamId == id)
+            .Include(g => g.HomeTeam)
+            .Include(g => g.AwayTeam)
+            .OrderByDescending(g => g.ScheduledAt)
+            .Select(g => new GameDto(g.Id, g.TournamentId, g.HomeTeamId, g.HomeTeam.Name,
+                g.AwayTeamId, g.AwayTeam.Name, g.ScheduledAt, g.Location,
+                g.Status.ToString(), g.HomeScore, g.AwayScore, g.CreatedAt))
+            .ToListAsync();
+        return ApiResponse<List<GameDto>>.Ok(list);
     }
 
     // --- Members ---
@@ -74,7 +91,7 @@ public class TeamsController : ControllerBase
         return ApiResponse<List<TeamMemberDto>>.Ok(list);
     }
 
-    [Authorize]
+    [Authorize(Roles = "SuperAdmin,TournamentManager")]
     [HttpPost("{id}/members")]
     public async Task<ApiResponse<TeamMemberDto>> AddMember(int id, TeamMemberCreateDto dto)
     {
@@ -87,7 +104,7 @@ public class TeamsController : ControllerBase
         return ApiResponse<TeamMemberDto>.Ok(new TeamMemberDto(member.Id, member.PlayerId, player.Name, member.JerseyNumber, member.JoinedAt));
     }
 
-    [Authorize]
+    [Authorize(Roles = "SuperAdmin,TournamentManager")]
     [HttpDelete("{id}/members/{memberId}")]
     public async Task<ApiResponse<string>> RemoveMember(int id, int memberId)
     {

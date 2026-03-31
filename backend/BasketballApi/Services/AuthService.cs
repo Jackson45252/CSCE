@@ -33,12 +33,13 @@ public class AuthService
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-        var claims = new[]
+        var claims = new List<Claim>
         {
             new Claim(JwtRegisteredClaimNames.Sub, admin.Id.ToString()),
-            new Claim(JwtRegisteredClaimNames.UniqueName, admin.Username),
-            new Claim(ClaimTypes.Role, "Admin")
+            new Claim(JwtRegisteredClaimNames.UniqueName, admin.Username)
         };
+        foreach (var role in admin.Roles)
+            claims.Add(new Claim(ClaimTypes.Role, role));
 
         var token = new JwtSecurityToken(
             issuer: _config["Jwt:Issuer"],
@@ -47,6 +48,6 @@ public class AuthService
             expires: expiresAt,
             signingCredentials: credentials);
 
-        return new LoginResponseDto(new JwtSecurityTokenHandler().WriteToken(token), expiresAt);
+        return new LoginResponseDto(new JwtSecurityTokenHandler().WriteToken(token), expiresAt, admin.Roles);
     }
 }

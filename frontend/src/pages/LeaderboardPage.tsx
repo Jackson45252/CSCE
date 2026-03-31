@@ -44,21 +44,22 @@ export default function LeaderboardPage() {
 
   return (
     <div>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">排行榜</h1>
-        {tournament && <p className="text-gray-500">{tournament.name}</p>}
+      <div className="scoreboard-bg rounded-xl px-8 py-6 mb-6">
+        <h1 className="text-2xl font-extrabold text-white tracking-wide">排行榜</h1>
+        {tournament && <p className="text-blue-200 text-sm mt-1">{tournament.name}</p>}
       </div>
+
       {sorted.length === 0 ? (
         <EmptyState message="暫無統計資料" />
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+        <div className="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
+          <table className="w-full text-sm nba-table">
             <thead>
-              <tr className="border-b bg-gray-50 text-left text-gray-500">
+              <tr className="bg-nba-navy text-white text-[11px] uppercase tracking-wider">
                 {([["rank", "#"], ["playerName", "球員"], ["teamName", "隊伍"], ["tournamentTotalPoints", "總得分"]] as [SortKey, string][]).map(
                   ([key, label]) => (
                     <th key={key}
-                      className={`px-3 py-2 cursor-pointer select-none hover:text-gray-700 ${key === "tournamentTotalPoints" ? "text-right" : ""}`}
+                      className={`px-4 py-2.5 cursor-pointer select-none hover:text-nba-gold transition-colors font-semibold ${key === "tournamentTotalPoints" ? "text-right" : "text-left"}`}
                       onClick={() => toggleSort(key)}>
                       {label} {sortKey === key ? (asc ? "\u25B2" : "\u25BC") : ""}
                     </th>
@@ -68,13 +69,19 @@ export default function LeaderboardPage() {
             </thead>
             <tbody>
               {sorted.map((e) => (
-                <tr key={e.playerId} className="border-b hover:bg-gray-50">
-                  <td className="px-3 py-2 text-gray-400">{e.rank}</td>
-                  <td className="px-3 py-2">
-                    <Link to={`/players/${e.playerId}`} className="text-indigo-600 hover:underline">{e.playerName}</Link>
+                <tr key={e.playerId} className="border-b border-gray-100">
+                  <td className="px-4 py-2.5">
+                    <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${
+                      e.rank <= 3 ? "bg-nba-gold text-nba-navy" : "text-gray-400"
+                    }`}>
+                      {e.rank}
+                    </span>
                   </td>
-                  <td className="px-3 py-2 text-gray-700">{e.teamName}</td>
-                  <td className="px-3 py-2 text-right font-bold">{e.tournamentTotalPoints}</td>
+                  <td className="px-4 py-2.5 font-medium">
+                    <Link to={`/players/${e.playerId}`} className="text-nba-blue hover:underline">{e.playerName}</Link>
+                  </td>
+                  <td className="px-4 py-2.5 text-gray-600">{e.teamName}</td>
+                  <td className="px-4 py-2.5 text-right font-extrabold text-nba-navy tabular-nums">{e.tournamentTotalPoints}</td>
                 </tr>
               ))}
             </tbody>

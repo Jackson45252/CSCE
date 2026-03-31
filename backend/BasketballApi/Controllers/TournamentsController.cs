@@ -30,7 +30,7 @@ public class TournamentsController : ControllerBase
         return ApiResponse<TournamentDto>.Ok(new TournamentDto(t.Id, t.Name, t.Season, t.StartDate, t.EndDate, t.Status.ToString(), t.CreatedAt));
     }
 
-    [Authorize]
+    [Authorize(Roles = "SuperAdmin,TournamentManager")]
     [HttpPost]
     public async Task<ApiResponse<TournamentDto>> Create(TournamentCreateDto dto)
     {
@@ -48,7 +48,7 @@ public class TournamentsController : ControllerBase
             tournament.StartDate, tournament.EndDate, tournament.Status.ToString(), tournament.CreatedAt));
     }
 
-    [Authorize]
+    [Authorize(Roles = "SuperAdmin,TournamentManager")]
     [HttpPut("{id}")]
     public async Task<ApiResponse<TournamentDto>> Update(int id, TournamentUpdateDto dto)
     {
@@ -62,7 +62,7 @@ public class TournamentsController : ControllerBase
         return ApiResponse<TournamentDto>.Ok(new TournamentDto(t.Id, t.Name, t.Season, t.StartDate, t.EndDate, t.Status.ToString(), t.CreatedAt));
     }
 
-    [Authorize]
+    [Authorize(Roles = "SuperAdmin,TournamentManager")]
     [HttpDelete("{id}")]
     public async Task<ApiResponse<string>> Delete(int id)
     {
@@ -84,7 +84,7 @@ public class TournamentsController : ControllerBase
         return ApiResponse<List<TournamentTeamDto>>.Ok(list);
     }
 
-    [Authorize]
+    [Authorize(Roles = "SuperAdmin,TournamentManager")]
     [HttpPost("{id}/teams")]
     public async Task<ApiResponse<TournamentTeamDto>> AddTeam(int id, AddTeamDto dto)
     {
@@ -97,7 +97,7 @@ public class TournamentsController : ControllerBase
         return ApiResponse<TournamentTeamDto>.Ok(new TournamentTeamDto(tt.Id, tt.TeamId, team.Name, tt.RegisteredAt));
     }
 
-    [Authorize]
+    [Authorize(Roles = "SuperAdmin,TournamentManager")]
     [HttpDelete("{id}/teams/{teamId}")]
     public async Task<ApiResponse<string>> RemoveTeam(int id, int teamId)
     {

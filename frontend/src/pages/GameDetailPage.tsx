@@ -5,10 +5,13 @@ import type { Game, BoxScoreEntry } from "../types";
 import Loading from "../components/Loading";
 import ErrorMessage from "../components/ErrorMessage";
 import StatusBadge from "../components/StatusBadge";
-import { pct } from "../utils/format";
+import Tabs from "../components/Tabs";
+import ShootingStatsTable from "../components/ShootingStatsTable";
+import { useState } from "react";
 
 export default function GameDetailPage() {
   const { id } = useParams();
+  const [activeTab, setActiveTab] = useState("home");
 
   const { data: game, isLoading, error } = useQuery({
     queryKey: ["game", id],
@@ -25,63 +28,79 @@ export default function GameDetailPage() {
 
   const homeStats = boxscore?.filter((s) => s.teamId === game.homeTeamId) ?? [];
   const awayStats = boxscore?.filter((s) => s.teamId === game.awayTeamId) ?? [];
+  const displayedStats = activeTab === "home" ? homeStats : awayStats;
+
+  const prefixColumns = [
+    {
+      key: "jersey",
+      label: "#",
+      className: "px-3 py-2.5 w-12",
+      render: (s: BoxScoreEntry) => <span className="font-bold text-nba-navy">{s.jerseyNumber ?? "-"}</span>,
+    },
+    {
+      key: "player",
+      label: "球員",
+      render: (s: BoxScoreEntry) => (
+        <Link to={`/players/${s.playerId}`} className="text-nba-blue hover:underline font-medium">
+          {s.playerName}
+        </Link>
+      ),
+    },
+  ];
 
   return (
     <div>
-      <div className="mb-6 text-center">
-        <div className="flex items-center justify-center gap-6 text-2xl font-bold text-gray-800">
-          <Link to={`/teams/${game.homeTeamId}`} className="hover:text-indigo-600">{game.homeTeamName}</Link>
-          {game.status === "Finished" ? (
-            <span>{game.homeScore} - {game.awayScore}</span>
-          ) : (
-            <span className="text-gray-400">vs</span>
-          )}
-          <Link to={`/teams/${game.awayTeamId}`} className="hover:text-indigo-600">{game.awayTeamName}</Link>
+      {/* Scoreboard */}
+      <div className="scoreboard-bg rounded-xl px-8 py-8 mb-6 text-center">
+        <div className="flex items-center justify-center gap-8">
+          <Link to={`/teams/${game.homeTeamId}`} className="text-center group">
+            <div className="w-14 h-14 rounded-full bg-white/10 flex items-center justify-center text-white font-extrabold text-xl mx-auto mb-2 border-2 border-white/20 group-hover:border-nba-gold transition-colors">
+              {game.homeTeamName[0]}
+            </div>
+            <span className="text-white font-bold text-sm group-hover:text-nba-gold transition-colors">{game.homeTeamName}</span>
+          </Link>
+
+          <div className="text-center">
+            {game.status === "Finished" ? (
+              <div className="text-4xl font-extrabold text-white tabular-nums tracking-wider">
+                {game.homeScore} <span className="text-white/40 mx-1">-</span> {game.awayScore}
+              </div>
+            ) : (
+              <div className="text-3xl font-bold text-white/40">VS</div>
+            )}
+            <div className="mt-2 flex items-center justify-center gap-2">
+              <StatusBadge status={game.status} />
+            </div>
+          </div>
+
+          <Link to={`/teams/${game.awayTeamId}`} className="text-center group">
+            <div className="w-14 h-14 rounded-full bg-white/10 flex items-center justify-center text-white font-extrabold text-xl mx-auto mb-2 border-2 border-white/20 group-hover:border-nba-gold transition-colors">
+              {game.awayTeamName[0]}
+            </div>
+            <span className="text-white font-bold text-sm group-hover:text-nba-gold transition-colors">{game.awayTeamName}</span>
+          </Link>
         </div>
-        <div className="mt-2 flex items-center justify-center gap-3 text-sm text-gray-500">
-          <StatusBadge status={game.status} />
-          <span>{new Date(game.scheduledAt).toLocaleString()}</span>
-          {game.location && <span>&middot; {game.location}</span>}
+
+        <div className="mt-3 text-blue-200 text-xs">
+          {new Date(game.scheduledAt).toLocaleString()}
+          {game.location && <span> &middot; {game.location}</span>}
         </div>
       </div>
 
-      {[{ label: game.homeTeamName, stats: homeStats }, { label: game.awayTeamName, stats: awayStats }].map(
-        ({ label, stats }) => (
-          <section key={label} className="mb-8">
-            <h2 className="text-lg font-semibold text-gray-700 mb-3">{label}</h2>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b bg-gray-50 text-left text-gray-500">
-                    <th className="px-3 py-2">#</th>
-                    <th className="px-3 py-2">球員</th>
-                    <th className="px-3 py-2 text-right">2PT</th>
-                    <th className="px-3 py-2 text-right">3PT</th>
-                    <th className="px-3 py-2 text-right">FT</th>
-                    <th className="px-3 py-2 text-right">FG%</th>
-                    <th className="px-3 py-2 text-right font-bold">PTS</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {stats.map((s) => (
-                    <tr key={s.playerId} className="border-b hover:bg-gray-50">
-                      <td className="px-3 py-2 text-gray-400">{s.jerseyNumber ?? "-"}</td>
-                      <td className="px-3 py-2">
-                        <Link to={`/players/${s.playerId}`} className="text-indigo-600 hover:underline">{s.playerName}</Link>
-                      </td>
-                      <td className="px-3 py-2 text-right">{s.twoPointPoints}/{s.twoPointAttempts} <span className="text-gray-400">{pct(s.twoPointPoints, s.twoPointAttempts)}</span></td>
-                      <td className="px-3 py-2 text-right">{s.threePointPoints}/{s.threePointAttempts} <span className="text-gray-400">{pct(s.threePointPoints, s.threePointAttempts)}</span></td>
-                      <td className="px-3 py-2 text-right">{s.freeThrowPoints}/{s.freeThrowAttempts} <span className="text-gray-400">{pct(s.freeThrowPoints, s.freeThrowAttempts)}</span></td>
-                      <td className="px-3 py-2 text-right">{pct(s.twoPointPoints + s.threePointPoints, s.twoPointAttempts + s.threePointAttempts)}</td>
-                      <td className="px-3 py-2 text-right font-bold">{s.totalPoints}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </section>
-        )
-      )}
+      <Tabs
+        tabs={[
+          { key: "home", label: game.homeTeamName },
+          { key: "away", label: game.awayTeamName },
+        ]}
+        activeKey={activeTab}
+        onChange={setActiveTab}
+      />
+
+      <ShootingStatsTable
+        data={displayedStats}
+        prefixColumns={prefixColumns}
+        emptyText="尚無數據"
+      />
     </div>
   );
 }

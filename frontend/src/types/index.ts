@@ -103,12 +103,28 @@ export interface LoginRequest {
 export interface LoginResponse {
   token: string;
   expiresAt: string;
+  roles: string[];
+}
+
+export interface Role {
+  id: number;
+  name: string;
+  description: string;
+  createdAt: string;
 }
 
 export interface Admin {
   id: number;
   username: string;
+  roles: string[];
   createdAt: string;
+}
+
+export interface PlayerTeam {
+  teamId: number;
+  teamName: string;
+  jerseyNumber?: number;
+  joinedAt: string;
 }
 
 export interface BoxScoreEntry {

@@ -30,7 +30,20 @@ public class PlayersController : ControllerBase
         return ApiResponse<PlayerDto>.Ok(new PlayerDto(p.Id, p.Name, p.CreatedAt));
     }
 
-    [Authorize]
+    [HttpGet("{id}/teams")]
+    public async Task<ApiResponse<List<PlayerTeamDto>>> GetTeams(int id)
+    {
+        _ = await _db.Players.FindAsync(id) ?? throw new KeyNotFoundException("Player not found");
+        var list = await _db.TeamMembers
+            .Where(tm => tm.PlayerId == id)
+            .Include(tm => tm.Team)
+            .OrderBy(tm => tm.JoinedAt)
+            .Select(tm => new PlayerTeamDto(tm.TeamId, tm.Team.Name, tm.JerseyNumber, tm.JoinedAt))
+            .ToListAsync();
+        return ApiResponse<List<PlayerTeamDto>>.Ok(list);
+    }
+
+    [Authorize(Roles = "SuperAdmin,TournamentManager")]
     [HttpPost]
     public async Task<ApiResponse<PlayerDto>> Create(PlayerCreateDto dto)
     {
@@ -40,7 +53,7 @@ public class PlayersController : ControllerBase
         return ApiResponse<PlayerDto>.Ok(new PlayerDto(player.Id, player.Name, player.CreatedAt));
     }
 
-    [Authorize]
+    [Authorize(Roles = "SuperAdmin,TournamentManager")]
     [HttpPut("{id}")]
     public async Task<ApiResponse<PlayerDto>> Update(int id, PlayerUpdateDto dto)
     {
@@ -50,7 +63,7 @@ public class PlayersController : ControllerBase
         return ApiResponse<PlayerDto>.Ok(new PlayerDto(player.Id, player.Name, player.CreatedAt));
     }
 
-    [Authorize]
+    [Authorize(Roles = "SuperAdmin,TournamentManager")]
     [HttpDelete("{id}")]
     public async Task<ApiResponse<string>> Delete(int id)
     {

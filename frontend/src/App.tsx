@@ -17,6 +17,7 @@ import TournamentAdmin from "./pages/admin/TournamentAdmin";
 import GameAdmin from "./pages/admin/GameAdmin";
 import StatsAdmin from "./pages/admin/StatsAdmin";
 import AccountAdmin from "./pages/admin/AccountAdmin";
+import RoleAdmin from "./pages/admin/RoleAdmin";
 
 export default function App() {
   return (
@@ -45,6 +46,7 @@ export default function App() {
           <Route path="games" element={<GameAdmin />} />
           <Route path="stats" element={<StatsAdmin />} />
           <Route path="accounts" element={<AccountAdmin />} />
+          <Route path="roles" element={<RoleAdmin />} />
         </Route>
       </Route>
     </Routes>

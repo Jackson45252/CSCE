@@ -28,7 +28,7 @@ public class PlayerGameStatsController : ControllerBase
         return ApiResponse<List<StatsDto>>.Ok(list);
     }
 
-    [Authorize]
+    [Authorize(Roles = "SuperAdmin,DataEditor")]
     [HttpPost]
     public async Task<ApiResponse<StatsDto>> Create(StatsCreateDto dto)
     {
@@ -56,7 +56,7 @@ public class PlayerGameStatsController : ControllerBase
             stats.TotalPoints, stats.CreatedAt));
     }
 
-    [Authorize]
+    [Authorize(Roles = "SuperAdmin,DataEditor")]
     [HttpPut("{id}")]
     public async Task<ApiResponse<StatsDto>> Update(int id, StatsUpdateDto dto)
     {
@@ -76,7 +76,7 @@ public class PlayerGameStatsController : ControllerBase
             s.TotalPoints, s.CreatedAt));
     }
 
-    [Authorize]
+    [Authorize(Roles = "SuperAdmin,DataEditor")]
     [HttpDelete("{id}")]
     public async Task<ApiResponse<string>> Delete(int id)
     {

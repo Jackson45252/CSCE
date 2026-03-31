@@ -30,36 +30,41 @@ public class AuthController : ControllerBase
         return Ok(ApiResponse<LoginResponseDto>.Ok(result));
     }
 
-    // --- Admin Account Management ---
+    // --- Admin Account Management (SuperAdmin only) ---
 
-    [Authorize]
+    [Authorize(Roles = "SuperAdmin")]
     [HttpGet("accounts")]
     public async Task<ApiResponse<List<AdminDto>>> GetAccounts()
     {
         var list = await _db.Admins.OrderBy(a => a.Id)
-            .Select(a => new AdminDto(a.Id, a.Username, a.CreatedAt))
+            .Select(a => new AdminDto(a.Id, a.Username, a.Roles, a.CreatedAt))
             .ToListAsync();
         return ApiResponse<List<AdminDto>>.Ok(list);
     }
 
-    [Authorize]
+    [Authorize(Roles = "SuperAdmin")]
     [HttpPost("accounts")]
     public async Task<ActionResult<ApiResponse<AdminDto>>> CreateAccount(AdminCreateDto dto)
     {
         if (await _db.Admins.AnyAsync(a => a.Username.ToLower() == dto.Username.ToLower()))
             return BadRequest(ApiResponse<AdminDto>.Fail("Username already exists"));
 
+        var validRoles = await _db.Roles.Select(r => r.Name).ToListAsync();
+        if (dto.Roles == null || !dto.Roles.Any() || dto.Roles.Any(r => !validRoles.Contains(r)))
+            return BadRequest(ApiResponse<AdminDto>.Fail("Invalid role in Roles array"));
+
         var admin = new Admin
         {
             Username = dto.Username,
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password)
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
+            Roles = dto.Roles
         };
         _db.Admins.Add(admin);
         await _db.SaveChangesAsync();
-        return Ok(ApiResponse<AdminDto>.Ok(new AdminDto(admin.Id, admin.Username, admin.CreatedAt)));
+        return Ok(ApiResponse<AdminDto>.Ok(new AdminDto(admin.Id, admin.Username, admin.Roles, admin.CreatedAt)));
     }
 
-    [Authorize]
+    [Authorize(Roles = "SuperAdmin")]
     [HttpPut("accounts/{id}")]
     public async Task<ActionResult<ApiResponse<AdminDto>>> UpdateAccount(int id, AdminUpdateDto dto)
     {
@@ -70,11 +75,19 @@ public class AuthController : ControllerBase
         if (!string.IsNullOrWhiteSpace(dto.Password))
             admin.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password);
 
+        if (dto.Roles != null && dto.Roles.Any())
+        {
+            var validRoles = await _db.Roles.Select(r => r.Name).ToListAsync();
+            if (dto.Roles.Any(r => !validRoles.Contains(r)))
+                return BadRequest(ApiResponse<AdminDto>.Fail("Invalid role in Roles array"));
+            admin.Roles = dto.Roles;
+        }
+
         await _db.SaveChangesAsync();
-        return Ok(ApiResponse<AdminDto>.Ok(new AdminDto(admin.Id, admin.Username, admin.CreatedAt)));
+        return Ok(ApiResponse<AdminDto>.Ok(new AdminDto(admin.Id, admin.Username, admin.Roles, admin.CreatedAt)));
     }
 
-    [Authorize]
+    [Authorize(Roles = "SuperAdmin")]
     [HttpDelete("accounts/{id}")]
     public async Task<ActionResult<ApiResponse<string>>> DeleteAccount(int id)
     {

@@ -38,7 +38,7 @@ public class GamesController : ControllerBase
             g.HomeScore, g.AwayScore, g.CreatedAt));
     }
 
-    [Authorize]
+    [Authorize(Roles = "SuperAdmin,TournamentManager")]
     [HttpPost]
     public async Task<ApiResponse<GameDto>> Create(GameCreateDto dto)
     {
@@ -63,7 +63,7 @@ public class GamesController : ControllerBase
             game.HomeScore, game.AwayScore, game.CreatedAt));
     }
 
-    [Authorize]
+    [Authorize(Roles = "SuperAdmin,TournamentManager")]
     [HttpPut("{id}")]
     public async Task<ApiResponse<GameDto>> Update(int id, GameUpdateDto dto)
     {
@@ -80,7 +80,7 @@ public class GamesController : ControllerBase
             g.HomeScore, g.AwayScore, g.CreatedAt));
     }
 
-    [Authorize]
+    [Authorize(Roles = "SuperAdmin,TournamentManager")]
     [HttpDelete("{id}")]
     public async Task<ApiResponse<string>> Delete(int id)
     {

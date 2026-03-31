@@ -5,6 +5,7 @@ import Loading from "../../components/Loading";
 import ErrorMessage from "../../components/ErrorMessage";
 import Modal from "../../components/Modal";
 import StatusBadge from "../../components/StatusBadge";
+import PageHeader from "../../components/PageHeader";
 import { useState } from "react";
 
 const defaultForm = { name: "", season: "", startDate: "", endDate: "", status: "Upcoming" };
@@ -58,10 +59,9 @@ export default function TournamentAdmin() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-gray-700">賽事管理</h2>
-        <button onClick={openAdd} className="rounded bg-indigo-600 px-3 py-1.5 text-sm text-white hover:bg-indigo-700">+ 新增賽事</button>
-      </div>
+      <PageHeader title="賽事管理" size="sm">
+        <button onClick={openAdd} className="rounded-lg bg-nba-navy px-3 py-1.5 text-sm text-white font-semibold hover:bg-nba-blue transition-colors">+ 新增賽事</button>
+      </PageHeader>
       <table className="w-full text-sm">
         <thead><tr className="border-b bg-gray-50 text-left text-gray-500">
           <th className="px-3 py-2">名稱</th><th className="px-3 py-2">賽季</th><th className="px-3 py-2">狀態</th><th className="px-3 py-2 text-right">操作</th>
@@ -73,9 +73,9 @@ export default function TournamentAdmin() {
               <td className="px-3 py-2">{t.season}</td>
               <td className="px-3 py-2"><StatusBadge status={t.status} /></td>
               <td className="px-3 py-2 text-right space-x-2">
-                <button onClick={() => setTeamModal(t.id)} className="text-green-600 hover:underline text-xs">隊伍</button>
-                <button onClick={() => openEdit(t)} className="text-indigo-600 hover:underline text-xs">編輯</button>
-                <button onClick={() => { if (confirm("確定刪除？")) remove.mutate(t.id); }} className="text-red-500 hover:underline text-xs">刪除</button>
+                <button onClick={() => setTeamModal(t.id)} className="text-nba-gold hover:underline text-xs font-semibold">隊伍</button>
+                <button onClick={() => openEdit(t)} className="text-nba-blue hover:underline text-xs font-semibold">編輯</button>
+                <button onClick={() => { if (confirm("確定刪除？")) remove.mutate(t.id); }} className="text-nba-red hover:underline text-xs font-semibold">刪除</button>
               </td>
             </tr>
           ))}
@@ -98,7 +98,7 @@ export default function TournamentAdmin() {
             className="w-full rounded border px-3 py-2 text-sm">
             <option>Upcoming</option><option>Ongoing</option><option>Finished</option>
           </select>
-          <button type="submit" className="w-full rounded bg-indigo-600 py-2 text-sm text-white hover:bg-indigo-700">
+          <button type="submit" className="w-full rounded-lg bg-nba-navy py-2.5 text-sm text-white font-bold uppercase tracking-wider hover:bg-nba-blue transition-colors">
             {save.isPending ? "儲存中..." : "儲存"}
           </button>
         </form>
@@ -118,7 +118,7 @@ export default function TournamentAdmin() {
             <option value="">選擇隊伍</option>
             {allTeams?.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
           </select>
-          <button type="submit" className="rounded bg-indigo-600 px-3 py-1.5 text-xs text-white hover:bg-indigo-700">新增</button>
+          <button type="submit" className="rounded-lg bg-nba-navy px-3 py-1.5 text-xs text-white font-semibold hover:bg-nba-blue transition-colors">新增</button>
         </form>
       </Modal>
     </div>

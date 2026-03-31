@@ -6,15 +6,37 @@ public static class DbSeeder
 {
     public static void Seed(AppDbContext db)
     {
+        // Seed roles
+        if (!db.Roles.Any())
+        {
+            db.Roles.AddRange(
+                new Role { Name = "SuperAdmin", Description = "完整系統存取權限，可管理帳號與角色" },
+                new Role { Name = "TournamentManager", Description = "可管理賽事、隊伍、比賽、球員" },
+                new Role { Name = "DataEditor", Description = "僅可編輯比賽數據" }
+            );
+            db.SaveChanges();
+        }
+
         // Seed admin account
         if (!db.Admins.Any())
         {
             db.Admins.Add(new Admin
             {
                 Username = "admin",
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword("admin123")
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("admin123"), // ⚠ Change in production!
+                Roles = ["SuperAdmin"]
             });
             db.SaveChanges();
+        }
+        else
+        {
+            // Self-heal: update any existing admins that got an empty Roles array after migration
+            var emptyRoleAdmins = db.Admins.Where(a => a.Roles == null || a.Roles.Length == 0).ToList();
+            if (emptyRoleAdmins.Any())
+            {
+                foreach (var a in emptyRoleAdmins) a.Roles = ["SuperAdmin"];
+                db.SaveChanges();
+            }
         }
 
         if (db.Players.Any()) return;

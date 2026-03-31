@@ -1,18 +1,18 @@
-const colors: Record<string, string> = {
-  Upcoming: "bg-blue-100 text-blue-700",
-  Ongoing: "bg-green-100 text-green-700",
-  Finished: "bg-gray-100 text-gray-600",
+const styles: Record<string, string> = {
+  Upcoming: "bg-blue-600 text-white",
+  Ongoing: "bg-nba-red text-white animate-pulse",
+  Finished: "bg-gray-500 text-white",
 };
 
 const labels: Record<string, string> = {
-  Upcoming: "即將開始",
-  Ongoing: "進行中",
-  Finished: "已結束",
+  Upcoming: "UPCOMING",
+  Ongoing: "LIVE",
+  Finished: "FINAL",
 };
 
 export default function StatusBadge({ status }: { status: string }) {
   return (
-    <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${colors[status] ?? "bg-gray-100 text-gray-600"}`}>
+    <span className={`inline-block rounded px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider ${styles[status] ?? "bg-gray-500 text-white"}`}>
       {labels[status] ?? status}
     </span>
   );

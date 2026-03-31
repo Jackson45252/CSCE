@@ -15,6 +15,7 @@ public class AppDbContext : DbContext
     public DbSet<Game> Games => Set<Game>();
     public DbSet<PlayerGameStats> PlayerGameStats => Set<PlayerGameStats>();
     public DbSet<Admin> Admins => Set<Admin>();
+    public DbSet<Role> Roles => Set<Role>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -26,6 +27,14 @@ public class AppDbContext : DbContext
             e.Property(a => a.Username).HasMaxLength(50).IsRequired();
             e.HasIndex(a => a.Username).IsUnique();
             e.Property(a => a.PasswordHash).HasMaxLength(200).IsRequired();
+        });
+
+        // --- Role ---
+        modelBuilder.Entity<Role>(e =>
+        {
+            e.Property(r => r.Name).HasMaxLength(50).IsRequired();
+            e.HasIndex(r => r.Name).IsUnique();
+            e.Property(r => r.Description).HasMaxLength(200);
         });
 
         // --- Player ---

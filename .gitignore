@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+
+# .NET
+bin/
+obj/
+*.user
+*.suo
+
+# Environment
+.env
+.env.local
+.env.production
+appsettings.*.local.json
+appsettings.Development.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

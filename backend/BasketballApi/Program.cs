@@ -10,6 +10,13 @@ using BasketballApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Bind to PORT env var provided by Zeabur / cloud platforms
+var port = Environment.GetEnvironmentVariable("PORT");
+if (!string.IsNullOrEmpty(port))
+{
+    builder.WebHost.UseUrls($"http://+:{port}");
+}
+
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
@@ -59,12 +66,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAuthorization();
 builder.Services.AddScoped<AuthService>();
 
-// CORS — allow frontend dev server
+// CORS — allow frontend (reads from config, falls back to localhost for dev)
+var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>()
+    ?? new[] { "http://localhost:5173" };
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:5173")
+        policy.WithOrigins(allowedOrigins)
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
@@ -72,8 +81,7 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Auto-migrate & seed in development (skip if not relational / testing)
-if (app.Environment.IsDevelopment())
+// Auto-migrate & seed (skip if not relational / testing)
 {
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -83,7 +91,10 @@ if (app.Environment.IsDevelopment())
         db.Database.Migrate();
         DbSeeder.Seed(db);
     }
+}
 
+if (app.Environment.IsDevelopment())
+{
     app.MapOpenApi();
 }
 

@@ -1,1 +1,31 @@
 @import "tailwindcss";
+
+@theme {
+  --color-nba-navy: #0C2340;
+  --color-nba-blue: #1D428A;
+  --color-nba-red: #C9082A;
+  --color-nba-dark: #111827;
+  --color-nba-surface: #1A1A2E;
+  --color-nba-border: #2A2A3E;
+  --color-nba-muted: #8C8C96;
+  --color-nba-gold: #FDB927;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* NBA-style table rows */
+.nba-table tbody tr:nth-child(even) {
+  background-color: #f9fafb;
+}
+.nba-table tbody tr:hover {
+  background-color: #f0f4ff;
+}
+
+/* Scoreboard gradient */
+.scoreboard-bg {
+  background: linear-gradient(135deg, #0C2340 0%, #1D428A 100%);
+}

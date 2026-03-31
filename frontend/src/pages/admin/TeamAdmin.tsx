@@ -4,6 +4,7 @@ import type { Team, Player, TeamMember } from "../../types";
 import Loading from "../../components/Loading";
 import ErrorMessage from "../../components/ErrorMessage";
 import Modal from "../../components/Modal";
+import PageHeader from "../../components/PageHeader";
 import { useState } from "react";
 
 export default function TeamAdmin() {
@@ -55,10 +56,9 @@ export default function TeamAdmin() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-gray-700">隊伍管理</h2>
-        <button onClick={openAdd} className="rounded bg-indigo-600 px-3 py-1.5 text-sm text-white hover:bg-indigo-700">+ 新增隊伍</button>
-      </div>
+      <PageHeader title="隊伍管理" size="sm">
+        <button onClick={openAdd} className="rounded-lg bg-nba-navy px-3 py-1.5 text-sm text-white font-semibold hover:bg-nba-blue transition-colors">+ 新增隊伍</button>
+      </PageHeader>
       <table className="w-full text-sm">
         <thead><tr className="border-b bg-gray-50 text-left text-gray-500">
           <th className="px-3 py-2">ID</th><th className="px-3 py-2">名稱</th><th className="px-3 py-2 text-right">操作</th>
@@ -69,9 +69,9 @@ export default function TeamAdmin() {
               <td className="px-3 py-2 text-gray-400">{t.id}</td>
               <td className="px-3 py-2">{t.name}</td>
               <td className="px-3 py-2 text-right space-x-2">
-                <button onClick={() => setMemberModal(t.id)} className="text-green-600 hover:underline text-xs">成員</button>
-                <button onClick={() => openEdit(t)} className="text-indigo-600 hover:underline text-xs">編輯</button>
-                <button onClick={() => { if (confirm("確定刪除？")) remove.mutate(t.id); }} className="text-red-500 hover:underline text-xs">刪除</button>
+                <button onClick={() => setMemberModal(t.id)} className="text-nba-gold hover:underline text-xs font-semibold">成員</button>
+                <button onClick={() => openEdit(t)} className="text-nba-blue hover:underline text-xs font-semibold">編輯</button>
+                <button onClick={() => { if (confirm("確定刪除？")) remove.mutate(t.id); }} className="text-nba-red hover:underline text-xs font-semibold">刪除</button>
               </td>
             </tr>
           ))}
@@ -83,11 +83,11 @@ export default function TeamAdmin() {
         <form onSubmit={(e) => { e.preventDefault(); save.mutate(); }}>
           <label className="block text-sm text-gray-600 mb-1">名稱</label>
           <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required
-            className="w-full rounded border px-3 py-2 text-sm mb-3 focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+            className="w-full rounded border px-3 py-2 text-sm mb-3 focus:outline-none focus:border-nba-blue transition-colors" />
           <label className="block text-sm text-gray-600 mb-1">Logo 網址</label>
           <input value={form.logoUrl} onChange={(e) => setForm({ ...form, logoUrl: e.target.value })}
-            className="w-full rounded border px-3 py-2 text-sm mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-400" />
-          <button type="submit" className="w-full rounded bg-indigo-600 py-2 text-sm text-white hover:bg-indigo-700">
+            className="w-full rounded border px-3 py-2 text-sm mb-4 focus:outline-none focus:border-nba-blue transition-colors" />
+          <button type="submit" className="w-full rounded-lg bg-nba-navy py-2.5 text-sm text-white font-bold uppercase tracking-wider hover:bg-nba-blue transition-colors">
             {save.isPending ? "儲存中..." : "儲存"}
           </button>
         </form>
@@ -111,7 +111,7 @@ export default function TeamAdmin() {
           </select>
           <input value={memberForm.jerseyNumber} onChange={(e) => setMemberForm({ ...memberForm, jerseyNumber: e.target.value })}
             placeholder="#" className="w-16 rounded border px-2 py-1.5 text-sm" type="number" />
-          <button type="submit" className="rounded bg-indigo-600 px-3 py-1.5 text-xs text-white hover:bg-indigo-700">新增</button>
+          <button type="submit" className="rounded-lg bg-nba-navy px-3 py-1.5 text-xs text-white font-semibold hover:bg-nba-blue transition-colors">新增</button>
         </form>
       </Modal>
     </div>
