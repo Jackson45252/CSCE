@@ -7,6 +7,7 @@ const allTabs = [
   { to: "/admin/tournaments", label: "賽事", roles: ["SuperAdmin", "TournamentManager"] },
   { to: "/admin/games", label: "比賽", roles: ["SuperAdmin", "TournamentManager"] },
   { to: "/admin/stats", label: "數據登錄", roles: ["SuperAdmin", "DataEditor"] },
+  { to: "/admin/batch-roster", label: "批次名單", roles: ["SuperAdmin", "TournamentManager"] },
   { to: "/admin/accounts", label: "帳號", roles: ["SuperAdmin"] },
   { to: "/admin/roles", label: "角色", roles: ["SuperAdmin"] },
 ];

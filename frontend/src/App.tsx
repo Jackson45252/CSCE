@@ -18,6 +18,7 @@ import GameAdmin from "./pages/admin/GameAdmin";
 import StatsAdmin from "./pages/admin/StatsAdmin";
 import AccountAdmin from "./pages/admin/AccountAdmin";
 import RoleAdmin from "./pages/admin/RoleAdmin";
+import BatchRosterAdmin from "./pages/admin/BatchRosterAdmin";
 
 export default function App() {
   return (
@@ -45,6 +46,7 @@ export default function App() {
           <Route path="tournaments" element={<TournamentAdmin />} />
           <Route path="games" element={<GameAdmin />} />
           <Route path="stats" element={<StatsAdmin />} />
+          <Route path="batch-roster" element={<BatchRosterAdmin />} />
           <Route path="accounts" element={<AccountAdmin />} />
           <Route path="roles" element={<RoleAdmin />} />
         </Route>
