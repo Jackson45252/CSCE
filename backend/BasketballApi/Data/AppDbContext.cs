@@ -42,6 +42,8 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Player>(e =>
         {
             e.Property(p => p.Name).HasMaxLength(50).IsRequired();
+            e.Property(p => p.Email).HasMaxLength(100);
+            e.Property(p => p.Remark).HasMaxLength(500);
         });
 
         // --- Team ---

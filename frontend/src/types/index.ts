@@ -7,6 +7,8 @@ export interface ApiResponse<T> {
 export interface Player {
   id: number;
   name: string;
+  email?: string;
+  remark?: string;
   createdAt: string;
 }
 

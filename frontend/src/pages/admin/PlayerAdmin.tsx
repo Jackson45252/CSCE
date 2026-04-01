@@ -11,6 +11,8 @@ export default function PlayerAdmin() {
   const qc = useQueryClient();
   const [modal, setModal] = useState<{ mode: "add" | "edit"; player?: Player } | null>(null);
   const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [remark, setRemark] = useState("");
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["players"],
@@ -20,8 +22,8 @@ export default function PlayerAdmin() {
   const save = useMutation({
     mutationFn: () =>
       modal?.mode === "edit"
-        ? putApi(`/players/${modal.player!.id}`, { name })
-        : postApi("/players", { name }),
+        ? putApi(`/players/${modal.player!.id}`, { name, email: email || null, remark: remark || null })
+        : postApi("/players", { name, email: email || null, remark: remark || null }),
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["players"] }); setModal(null); },
   });
 
@@ -30,8 +32,8 @@ export default function PlayerAdmin() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["players"] }),
   });
 
-  const openAdd = () => { setName(""); setModal({ mode: "add" }); };
-  const openEdit = (p: Player) => { setName(p.name); setModal({ mode: "edit", player: p }); };
+  const openAdd = () => { setName(""); setEmail(""); setRemark(""); setModal({ mode: "add" }); };
+  const openEdit = (p: Player) => { setName(p.name); setEmail(p.email ?? ""); setRemark(p.remark ?? ""); setModal({ mode: "edit", player: p }); };
 
   if (isLoading) return <Loading />;
   if (error) return <ErrorMessage message={(error as Error).message} />;
@@ -49,6 +51,8 @@ export default function PlayerAdmin() {
           <tr className="bg-nba-navy text-white text-[11px] uppercase tracking-wider">
             <th className="px-4 py-2.5 text-left font-semibold">ID</th>
             <th className="px-4 py-2.5 text-left font-semibold">姓名</th>
+            <th className="px-4 py-2.5 text-left font-semibold">電子信箱</th>
+            <th className="px-4 py-2.5 text-left font-semibold">備註</th>
             <th className="px-4 py-2.5 text-right font-semibold">操作</th>
           </tr>
         </thead>
@@ -57,6 +61,8 @@ export default function PlayerAdmin() {
             <tr key={p.id} className="border-b border-gray-100">
               <td className="px-4 py-2.5 text-gray-400">{p.id}</td>
               <td className="px-4 py-2.5 font-medium">{p.name}</td>
+              <td className="px-4 py-2.5 text-gray-500">{p.email ?? <span className="text-gray-300">—</span>}</td>
+              <td className="px-4 py-2.5 text-gray-500 max-w-xs truncate">{p.remark ?? <span className="text-gray-300">—</span>}</td>
               <td className="px-4 py-2.5 text-right space-x-2">
                 <button onClick={() => openEdit(p)} className="text-nba-blue hover:underline text-xs font-semibold">編輯</button>
                 <button onClick={() => { if (confirm("確定刪除？")) remove.mutate(p.id); }} className="text-nba-red hover:underline text-xs font-semibold">刪除</button>
@@ -71,6 +77,12 @@ export default function PlayerAdmin() {
           <label className="block text-sm text-gray-600 mb-1">姓名</label>
           <input value={name} onChange={(e) => setName(e.target.value)} required
             className="w-full rounded-lg border-2 border-gray-200 px-3 py-2 text-sm mb-4 focus:outline-none focus:border-nba-blue transition-colors" />
+          <label className="block text-sm text-gray-600 mb-1">電子信箱</label>
+          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="選填"
+            className="w-full rounded-lg border-2 border-gray-200 px-3 py-2 text-sm mb-4 focus:outline-none focus:border-nba-blue transition-colors" />
+          <label className="block text-sm text-gray-600 mb-1">備註</label>
+          <textarea value={remark} onChange={(e) => setRemark(e.target.value)} placeholder="選填" rows={3}
+            className="w-full rounded-lg border-2 border-gray-200 px-3 py-2 text-sm mb-4 focus:outline-none focus:border-nba-blue transition-colors resize-none" />
           <button type="submit" className="w-full rounded-lg bg-nba-navy py-2.5 text-sm text-white font-bold uppercase tracking-wider hover:bg-nba-blue transition-colors">
             {save.isPending ? "儲存中..." : "儲存"}
           </button>

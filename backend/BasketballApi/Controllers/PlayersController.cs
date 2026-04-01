@@ -18,7 +18,7 @@ public class PlayersController : ControllerBase
     public async Task<ApiResponse<List<PlayerDto>>> GetAll()
     {
         var list = await _db.Players.OrderBy(p => p.Name)
-            .Select(p => new PlayerDto(p.Id, p.Name, p.CreatedAt))
+            .Select(p => new PlayerDto(p.Id, p.Name, p.Email, p.Remark, p.CreatedAt))
             .ToListAsync();
         return ApiResponse<List<PlayerDto>>.Ok(list);
     }
@@ -27,7 +27,7 @@ public class PlayersController : ControllerBase
     public async Task<ApiResponse<PlayerDto>> Get(int id)
     {
         var p = await _db.Players.FindAsync(id) ?? throw new KeyNotFoundException("Player not found");
-        return ApiResponse<PlayerDto>.Ok(new PlayerDto(p.Id, p.Name, p.CreatedAt));
+        return ApiResponse<PlayerDto>.Ok(new PlayerDto(p.Id, p.Name, p.Email, p.Remark, p.CreatedAt));
     }
 
     [HttpGet("{id}/teams")]
@@ -47,10 +47,10 @@ public class PlayersController : ControllerBase
     [HttpPost]
     public async Task<ApiResponse<PlayerDto>> Create(PlayerCreateDto dto)
     {
-        var player = new Player { Name = dto.Name };
+        var player = new Player { Name = dto.Name, Email = dto.Email, Remark = dto.Remark };
         _db.Players.Add(player);
         await _db.SaveChangesAsync();
-        return ApiResponse<PlayerDto>.Ok(new PlayerDto(player.Id, player.Name, player.CreatedAt));
+        return ApiResponse<PlayerDto>.Ok(new PlayerDto(player.Id, player.Name, player.Email, player.Remark, player.CreatedAt));
     }
 
     [Authorize(Roles = "SuperAdmin,TournamentManager")]
@@ -59,8 +59,10 @@ public class PlayersController : ControllerBase
     {
         var player = await _db.Players.FindAsync(id) ?? throw new KeyNotFoundException("Player not found");
         player.Name = dto.Name;
+        player.Email = dto.Email;
+        player.Remark = dto.Remark;
         await _db.SaveChangesAsync();
-        return ApiResponse<PlayerDto>.Ok(new PlayerDto(player.Id, player.Name, player.CreatedAt));
+        return ApiResponse<PlayerDto>.Ok(new PlayerDto(player.Id, player.Name, player.Email, player.Remark, player.CreatedAt));
     }
 
     [Authorize(Roles = "SuperAdmin,TournamentManager")]
