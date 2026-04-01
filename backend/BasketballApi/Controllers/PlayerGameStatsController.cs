@@ -46,7 +46,7 @@ public class PlayerGameStatsController : ControllerBase
             ThreePointPoints = dto.ThreePointPoints,
             FreeThrowAttempts = dto.FreeThrowAttempts,
             FreeThrowPoints = dto.FreeThrowPoints,
-            TotalPoints = dto.TwoPointPoints + dto.ThreePointPoints + dto.FreeThrowPoints
+            TotalPoints = dto.TwoPointPoints * 2 + dto.ThreePointPoints * 3 + dto.FreeThrowPoints
         };
         _db.PlayerGameStats.Add(stats);
         await _db.SaveChangesAsync();
@@ -68,7 +68,7 @@ public class PlayerGameStatsController : ControllerBase
         s.ThreePointPoints = dto.ThreePointPoints;
         s.FreeThrowAttempts = dto.FreeThrowAttempts;
         s.FreeThrowPoints = dto.FreeThrowPoints;
-        s.TotalPoints = dto.TwoPointPoints + dto.ThreePointPoints + dto.FreeThrowPoints;
+        s.TotalPoints = dto.TwoPointPoints * 2 + dto.ThreePointPoints * 3 + dto.FreeThrowPoints;
         await _db.SaveChangesAsync();
         return ApiResponse<StatsDto>.Ok(new StatsDto(s.Id, s.GameId, s.PlayerId, s.Player.Name,
             s.TeamId, s.Team.Name, s.TwoPointAttempts, s.TwoPointPoints,

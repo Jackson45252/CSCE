@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchApi, postApi, putApi, deleteApi } from "../../api/client";
-import type { Tournament, Team, TournamentTeam } from "../../types";
+import type { Tournament, Team, TournamentTeam, TournamentRoster, Player } from "../../types";
 import Loading from "../../components/Loading";
 import ErrorMessage from "../../components/ErrorMessage";
 import Modal from "../../components/Modal";
@@ -14,15 +14,24 @@ export default function TournamentAdmin() {
   const qc = useQueryClient();
   const [modal, setModal] = useState<{ mode: "add" | "edit"; tournament?: Tournament } | null>(null);
   const [teamModal, setTeamModal] = useState<number | null>(null);
+  const [rosterModal, setRosterModal] = useState<{ tournamentId: number; teamId: number; teamName: string } | null>(null);
   const [form, setForm] = useState(defaultForm);
   const [selectedTeamId, setSelectedTeamId] = useState("");
+  const [selectedPlayerId, setSelectedPlayerId] = useState("");
+  const [rosterJersey, setRosterJersey] = useState("");
 
   const { data, isLoading, error } = useQuery({ queryKey: ["tournaments"], queryFn: () => fetchApi<Tournament[]>("/tournaments") });
   const { data: allTeams } = useQuery({ queryKey: ["teams"], queryFn: () => fetchApi<Team[]>("/teams") });
+  const { data: allPlayers } = useQuery({ queryKey: ["players"], queryFn: () => fetchApi<Player[]>("/players"), enabled: !!rosterModal });
   const { data: regTeams } = useQuery({
     queryKey: ["tournament-teams", teamModal],
     queryFn: () => fetchApi<TournamentTeam[]>(`/tournaments/${teamModal}/teams`),
     enabled: !!teamModal,
+  });
+  const { data: rosterPlayers } = useQuery({
+    queryKey: ["tournament-roster", rosterModal?.tournamentId, rosterModal?.teamId],
+    queryFn: () => fetchApi<TournamentRoster[]>(`/tournaments/${rosterModal!.tournamentId}/teams/${rosterModal!.teamId}/roster`),
+    enabled: !!rosterModal,
   });
 
   const save = useMutation({
@@ -48,10 +57,33 @@ export default function TournamentAdmin() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["tournament-teams", teamModal] }),
   });
 
+  const addToRoster = useMutation({
+    mutationFn: () => postApi(
+      `/tournaments/${rosterModal!.tournamentId}/teams/${rosterModal!.teamId}/roster`,
+      { playerId: Number(selectedPlayerId), jerseyNumber: rosterJersey ? Number(rosterJersey) : null }
+    ),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["tournament-roster", rosterModal?.tournamentId, rosterModal?.teamId] });
+      setSelectedPlayerId("");
+      setRosterJersey("");
+    },
+  });
+
+  const removeFromRoster = useMutation({
+    mutationFn: (rosterId: number) => deleteApi(`/tournaments/${rosterModal!.tournamentId}/teams/${rosterModal!.teamId}/roster/${rosterId}`),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["tournament-roster", rosterModal?.tournamentId, rosterModal?.teamId] }),
+  });
+
   const openAdd = () => { setForm(defaultForm); setModal({ mode: "add" }); };
   const openEdit = (t: Tournament) => {
     setForm({ name: t.name, season: t.season, startDate: t.startDate ?? "", endDate: t.endDate ?? "", status: t.status });
     setModal({ mode: "edit", tournament: t });
+  };
+
+  const openRoster = (tournamentId: number, teamId: number, teamName: string) => {
+    setSelectedPlayerId("");
+    setRosterJersey("");
+    setRosterModal({ tournamentId, teamId, teamName });
   };
 
   if (isLoading) return <Loading />;
@@ -109,7 +141,10 @@ export default function TournamentAdmin() {
           {regTeams?.map((rt) => (
             <div key={rt.teamId} className="flex items-center justify-between rounded border px-3 py-2 text-sm">
               <span>{rt.teamName}</span>
-              <button onClick={() => removeTeam.mutate(rt.teamId)} className="text-red-500 text-xs hover:underline">移除</button>
+              <div className="flex gap-3">
+                <button onClick={() => openRoster(teamModal!, rt.teamId, rt.teamName)} className="text-nba-blue text-xs hover:underline font-semibold">名單</button>
+                <button onClick={() => removeTeam.mutate(rt.teamId)} className="text-red-500 text-xs hover:underline">移除</button>
+              </div>
             </div>
           ))}
         </div>
@@ -118,6 +153,33 @@ export default function TournamentAdmin() {
             <option value="">選擇隊伍</option>
             {allTeams?.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
           </select>
+          <button type="submit" className="rounded-lg bg-nba-navy px-3 py-1.5 text-xs text-white font-semibold hover:bg-nba-blue transition-colors">新增</button>
+        </form>
+      </Modal>
+
+      <Modal open={!!rosterModal} onClose={() => setRosterModal(null)} title={`出賽名單 — ${rosterModal?.teamName}`}>
+        <div className="mb-4 space-y-2">
+          {rosterPlayers?.length === 0 && <p className="text-sm text-gray-400 text-center py-2">尚無球員</p>}
+          {rosterPlayers?.map((r) => (
+            <div key={r.id} className="flex items-center justify-between rounded border px-3 py-2 text-sm">
+              <span>
+                {r.jerseyNumber != null && <span className="mr-2 text-gray-400">#{r.jerseyNumber}</span>}
+                {r.playerName}
+              </span>
+              <button onClick={() => removeFromRoster.mutate(r.id)} className="text-red-500 text-xs hover:underline">移除</button>
+            </div>
+          ))}
+        </div>
+        <form onSubmit={(e) => { e.preventDefault(); addToRoster.mutate(); }} className="flex gap-2">
+          <select value={selectedPlayerId} onChange={(e) => setSelectedPlayerId(e.target.value)} required className="flex-1 rounded border px-2 py-1.5 text-sm">
+            <option value="">選擇球員</option>
+            {allPlayers?.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+          </select>
+          <input
+            type="number" min="0" placeholder="#"
+            value={rosterJersey} onChange={(e) => setRosterJersey(e.target.value)}
+            className="w-16 rounded border px-2 py-1.5 text-sm"
+          />
           <button type="submit" className="rounded-lg bg-nba-navy px-3 py-1.5 text-xs text-white font-semibold hover:bg-nba-blue transition-colors">新增</button>
         </form>
       </Modal>

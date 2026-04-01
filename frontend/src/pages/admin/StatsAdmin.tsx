@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchApi, postApi, putApi, deleteApi } from "../../api/client";
-import type { Game, TeamMember, PlayerGameStats } from "../../types";
+import type { Game, TournamentRoster, PlayerGameStats } from "../../types";
 import Loading from "../../components/Loading";
 import ErrorMessage from "../../components/ErrorMessage";
 import Modal from "../../components/Modal";
@@ -21,10 +21,11 @@ export default function StatsAdmin() {
   const [form, setForm] = useState(defaultForm);
 
   const { data: games } = useQuery({ queryKey: ["games"], queryFn: () => fetchApi<Game[]>("/games") });
-  const { data: teamMembers } = useQuery({
-    queryKey: ["team-members-for-stats", form.teamId],
-    queryFn: () => fetchApi<TeamMember[]>(`/teams/${form.teamId}/members`),
-    enabled: !!form.teamId,
+  const currentGame = games?.find((g) => g.id.toString() === selectedGame);
+  const { data: rosterPlayers } = useQuery({
+    queryKey: ["tournament-roster-for-stats", currentGame?.tournamentId, form.teamId],
+    queryFn: () => fetchApi<TournamentRoster[]>(`/tournaments/${currentGame!.tournamentId}/teams/${form.teamId}/roster`),
+    enabled: !!form.teamId && !!currentGame,
   });
   const { data: stats, isLoading, error } = useQuery({
     queryKey: ["game-stats", selectedGame],
@@ -44,8 +45,6 @@ export default function StatsAdmin() {
     mutationFn: (id: number) => deleteApi(`/playergamestats/${id}`),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["game-stats", selectedGame] }),
   });
-
-  const currentGame = games?.find((g) => g.id.toString() === selectedGame);
   const homeStats = stats?.filter((s) => s.teamId === currentGame?.homeTeamId) ?? [];
   const awayStats = stats?.filter((s) => s.teamId === currentGame?.awayTeamId) ?? [];
   const displayedStats = activeTab === "home" ? homeStats : awayStats;
@@ -116,7 +115,11 @@ export default function StatsAdmin() {
               </select>
               <select value={form.playerId} onChange={(e) => setForm({ ...form, playerId: e.target.value })} required disabled={!form.teamId} className="w-full rounded border px-3 py-2 text-sm disabled:bg-gray-100">
                 <option value="">球員</option>
-                {teamMembers?.map((m) => <option key={m.playerId} value={m.playerId}>{m.playerName}</option>)}
+                {rosterPlayers?.map((r) => (
+                  <option key={r.playerId} value={r.playerId}>
+                    {r.jerseyNumber != null ? `#${r.jerseyNumber} ` : ""}{r.playerName}
+                  </option>
+                ))}
               </select>
             </>
           )}

@@ -10,4 +10,5 @@ public class TournamentTeam
     // Navigation
     public Tournament Tournament { get; set; } = null!;
     public Team Team { get; set; } = null!;
+    public ICollection<TournamentRoster> TournamentRosters { get; set; } = [];
 }

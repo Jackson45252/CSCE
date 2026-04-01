@@ -12,6 +12,7 @@ public class AppDbContext : DbContext
     public DbSet<TeamMember> TeamMembers => Set<TeamMember>();
     public DbSet<Tournament> Tournaments => Set<Tournament>();
     public DbSet<TournamentTeam> TournamentTeams => Set<TournamentTeam>();
+    public DbSet<TournamentRoster> TournamentRosters => Set<TournamentRoster>();
     public DbSet<Game> Games => Set<Game>();
     public DbSet<PlayerGameStats> PlayerGameStats => Set<PlayerGameStats>();
     public DbSet<Admin> Admins => Set<Admin>();
@@ -74,6 +75,15 @@ public class AppDbContext : DbContext
             e.HasIndex(tt => new { tt.TournamentId, tt.TeamId }).IsUnique();
             e.HasOne(tt => tt.Tournament).WithMany(t => t.TournamentTeams).HasForeignKey(tt => tt.TournamentId);
             e.HasOne(tt => tt.Team).WithMany(t => t.TournamentTeams).HasForeignKey(tt => tt.TeamId);
+        });
+
+        // --- TournamentRoster ---
+        modelBuilder.Entity<TournamentRoster>(e =>
+        {
+            e.HasIndex(tr => new { tr.TournamentTeamId, tr.PlayerId }).IsUnique();
+            e.HasIndex(tr => new { tr.TournamentTeamId, tr.JerseyNumber }).IsUnique().HasFilter("\"JerseyNumber\" IS NOT NULL");
+            e.HasOne(tr => tr.TournamentTeam).WithMany(tt => tt.TournamentRosters).HasForeignKey(tr => tr.TournamentTeamId);
+            e.HasOne(tr => tr.Player).WithMany(p => p.TournamentRosters).HasForeignKey(tr => tr.PlayerId);
         });
 
         // --- Game ---

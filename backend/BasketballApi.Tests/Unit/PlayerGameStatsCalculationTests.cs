@@ -17,9 +17,9 @@ public class PlayerGameStatsCalculationTests
             FreeThrowPoints = 3,
         };
 
-        var total = stats.TwoPointPoints + stats.ThreePointPoints + stats.FreeThrowPoints;
+        var total = stats.TwoPointPoints * 2 + stats.ThreePointPoints * 3 + stats.FreeThrowPoints;
 
-        Assert.Equal(24, total);
+        Assert.Equal(54, total);
     }
 
     [Fact]

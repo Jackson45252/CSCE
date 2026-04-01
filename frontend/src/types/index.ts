@@ -42,6 +42,14 @@ export interface TournamentTeam {
   registeredAt: string;
 }
 
+export interface TournamentRoster {
+  id: number;
+  playerId: number;
+  playerName: string;
+  jerseyNumber?: number;
+  addedAt: string;
+}
+
 export interface Game {
   id: number;
   tournamentId: number;

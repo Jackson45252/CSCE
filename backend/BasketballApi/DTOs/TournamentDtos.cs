@@ -5,3 +5,5 @@ public record TournamentUpdateDto(string Name, string Season, DateOnly? StartDat
 public record TournamentDto(int Id, string Name, string Season, DateOnly? StartDate, DateOnly? EndDate, string Status, DateTime CreatedAt);
 public record TournamentTeamDto(int Id, int TeamId, string TeamName, DateTime RegisteredAt);
 public record AddTeamDto(int TeamId);
+public record TournamentRosterDto(int Id, int PlayerId, string PlayerName, int? JerseyNumber, DateTime AddedAt);
+public record TournamentRosterAddDto(int PlayerId, int? JerseyNumber);

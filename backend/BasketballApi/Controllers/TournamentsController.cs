@@ -108,6 +108,49 @@ public class TournamentsController : ControllerBase
         return ApiResponse<string>.Ok("Deleted");
     }
 
+    // --- Tournament Roster ---
+    [HttpGet("{id}/teams/{teamId}/roster")]
+    public async Task<ApiResponse<List<TournamentRosterDto>>> GetRoster(int id, int teamId)
+    {
+        var tt = await _db.TournamentTeams.FirstOrDefaultAsync(x => x.TournamentId == id && x.TeamId == teamId)
+            ?? throw new KeyNotFoundException("Team not in tournament");
+
+        var list = await _db.TournamentRosters
+            .Where(tr => tr.TournamentTeamId == tt.Id)
+            .Include(tr => tr.Player)
+            .OrderBy(tr => tr.JerseyNumber)
+            .Select(tr => new TournamentRosterDto(tr.Id, tr.PlayerId, tr.Player.Name, tr.JerseyNumber, tr.AddedAt))
+            .ToListAsync();
+        return ApiResponse<List<TournamentRosterDto>>.Ok(list);
+    }
+
+    [Authorize(Roles = "SuperAdmin,TournamentManager")]
+    [HttpPost("{id}/teams/{teamId}/roster")]
+    public async Task<ApiResponse<TournamentRosterDto>> AddToRoster(int id, int teamId, TournamentRosterAddDto dto)
+    {
+        var tt = await _db.TournamentTeams.FirstOrDefaultAsync(x => x.TournamentId == id && x.TeamId == teamId)
+            ?? throw new KeyNotFoundException("Team not in tournament");
+        var player = await _db.Players.FindAsync(dto.PlayerId) ?? throw new KeyNotFoundException("Player not found");
+
+        var roster = new TournamentRoster { TournamentTeamId = tt.Id, PlayerId = dto.PlayerId, JerseyNumber = dto.JerseyNumber };
+        _db.TournamentRosters.Add(roster);
+        await _db.SaveChangesAsync();
+        return ApiResponse<TournamentRosterDto>.Ok(new TournamentRosterDto(roster.Id, roster.PlayerId, player.Name, roster.JerseyNumber, roster.AddedAt));
+    }
+
+    [Authorize(Roles = "SuperAdmin,TournamentManager")]
+    [HttpDelete("{id}/teams/{teamId}/roster/{rosterId}")]
+    public async Task<ApiResponse<string>> RemoveFromRoster(int id, int teamId, int rosterId)
+    {
+        var tt = await _db.TournamentTeams.FirstOrDefaultAsync(x => x.TournamentId == id && x.TeamId == teamId)
+            ?? throw new KeyNotFoundException("Team not in tournament");
+        var roster = await _db.TournamentRosters.FirstOrDefaultAsync(x => x.Id == rosterId && x.TournamentTeamId == tt.Id)
+            ?? throw new KeyNotFoundException("Roster entry not found");
+        _db.TournamentRosters.Remove(roster);
+        await _db.SaveChangesAsync();
+        return ApiResponse<string>.Ok("Deleted");
+    }
+
     // --- 3.1 Leaderboard ---
     [HttpGet("{id}/leaderboard")]
     public async Task<ApiResponse<List<LeaderboardEntryDto>>> GetLeaderboard(int id)
@@ -134,12 +177,14 @@ public class TournamentsController : ControllerBase
             from pgs in _db.PlayerGameStats
             join g in _db.Games on pgs.GameId equals g.Id
             join p in _db.Players on pgs.PlayerId equals p.Id
-            join tm in _db.TeamMembers
-                on new { pgs.PlayerId, TeamId = teamId } equals new { tm.PlayerId, tm.TeamId }
-                into tmGroup
-            from tm in tmGroup.DefaultIfEmpty()
+            join tt in _db.TournamentTeams
+                on new { TournamentId = g.TournamentId, TeamId = teamId } equals new { tt.TournamentId, tt.TeamId }
+            join tr in _db.TournamentRosters
+                on new { TournamentTeamId = tt.Id, pgs.PlayerId } equals new { tr.TournamentTeamId, tr.PlayerId }
+                into trGroup
+            from tr in trGroup.DefaultIfEmpty()
             where g.TournamentId == id && pgs.TeamId == teamId && g.Status == GameStatus.Finished
-            group pgs by new { pgs.PlayerId, PlayerName = p.Name, JerseyNumber = (int?)tm.JerseyNumber } into grp
+            group pgs by new { pgs.PlayerId, PlayerName = p.Name, JerseyNumber = (int?)tr.JerseyNumber } into grp
             orderby grp.Sum(x => x.TotalPoints) descending
             select new TeamTournamentStatsDto(
                 grp.Key.PlayerId, grp.Key.PlayerName, grp.Key.JerseyNumber,

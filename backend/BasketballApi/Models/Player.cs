@@ -9,4 +9,5 @@ public class Player
     // Navigation
     public ICollection<TeamMember> TeamMembers { get; set; } = [];
     public ICollection<PlayerGameStats> GameStats { get; set; } = [];
+    public ICollection<TournamentRoster> TournamentRosters { get; set; } = [];
 }
