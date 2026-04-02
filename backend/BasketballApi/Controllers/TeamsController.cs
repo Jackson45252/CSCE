@@ -73,7 +73,10 @@ public class TeamsController : ControllerBase
             .OrderByDescending(g => g.ScheduledAt)
             .Select(g => new GameDto(g.Id, g.TournamentId, g.HomeTeamId, g.HomeTeam.Name,
                 g.AwayTeamId, g.AwayTeam.Name, g.ScheduledAt, g.Location,
-                g.Status.ToString(), g.HomeScore, g.AwayScore, g.CreatedAt))
+                g.Status.ToString(), g.HomeScore, g.AwayScore,
+                g.HomeQ1, g.HomeQ2, g.HomeQ3, g.HomeQ4, g.HomeOt1, g.HomeOt2,
+                g.AwayQ1, g.AwayQ2, g.AwayQ3, g.AwayQ4, g.AwayOt1, g.AwayOt2,
+                g.CreatedAt))
             .ToListAsync();
         return ApiResponse<List<GameDto>>.Ok(list);
     }

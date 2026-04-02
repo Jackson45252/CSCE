@@ -3,6 +3,7 @@ using System;
 using BasketballApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BasketballApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260402095234_AddTournamentCategory")]
+    partial class AddTournamentCategory
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -63,24 +66,6 @@ namespace BasketballApi.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("AwayOt1")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("AwayOt2")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("AwayQ1")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("AwayQ2")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("AwayQ3")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("AwayQ4")
-                        .HasColumnType("integer");
-
                     b.Property<int?>("AwayScore")
                         .HasColumnType("integer");
 
@@ -89,24 +74,6 @@ namespace BasketballApi.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<int?>("HomeOt1")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("HomeOt2")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("HomeQ1")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("HomeQ2")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("HomeQ3")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("HomeQ4")
-                        .HasColumnType("integer");
 
                     b.Property<int?>("HomeScore")
                         .HasColumnType("integer");

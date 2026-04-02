@@ -15,10 +15,13 @@ public class TournamentsController : ControllerBase
     public TournamentsController(AppDbContext db) => _db = db;
 
     [HttpGet]
-    public async Task<ApiResponse<List<TournamentDto>>> GetAll()
+    public async Task<ApiResponse<List<TournamentDto>>> GetAll([FromQuery] int? categoryId = null)
     {
-        var list = await _db.Tournaments.OrderByDescending(t => t.Season)
-            .Select(t => new TournamentDto(t.Id, t.Name, t.Season, t.StartDate, t.EndDate, t.Status.ToString(), t.CreatedAt))
+        var query = _db.Tournaments.Include(t => t.Category).AsQueryable();
+        if (categoryId.HasValue)
+            query = query.Where(t => t.CategoryId == categoryId);
+        var list = await query.OrderByDescending(t => t.Season)
+            .Select(t => new TournamentDto(t.Id, t.Name, t.Season, t.StartDate, t.EndDate, t.Status.ToString(), t.CreatedAt, t.CategoryId, t.Category != null ? t.Category.Name : null))
             .ToListAsync();
         return ApiResponse<List<TournamentDto>>.Ok(list);
     }
@@ -26,8 +29,8 @@ public class TournamentsController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ApiResponse<TournamentDto>> Get(int id)
     {
-        var t = await _db.Tournaments.FindAsync(id) ?? throw new KeyNotFoundException("Tournament not found");
-        return ApiResponse<TournamentDto>.Ok(new TournamentDto(t.Id, t.Name, t.Season, t.StartDate, t.EndDate, t.Status.ToString(), t.CreatedAt));
+        var t = await _db.Tournaments.Include(t => t.Category).FirstOrDefaultAsync(t => t.Id == id) ?? throw new KeyNotFoundException("Tournament not found");
+        return ApiResponse<TournamentDto>.Ok(new TournamentDto(t.Id, t.Name, t.Season, t.StartDate, t.EndDate, t.Status.ToString(), t.CreatedAt, t.CategoryId, t.Category?.Name));
     }
 
     [Authorize(Roles = "SuperAdmin,TournamentManager")]
@@ -40,26 +43,30 @@ public class TournamentsController : ControllerBase
             Season = dto.Season,
             StartDate = dto.StartDate,
             EndDate = dto.EndDate,
-            Status = Enum.Parse<TournamentStatus>(dto.Status, true)
+            Status = Enum.Parse<TournamentStatus>(dto.Status, true),
+            CategoryId = dto.CategoryId
         };
         _db.Tournaments.Add(tournament);
         await _db.SaveChangesAsync();
+        await _db.Entry(tournament).Reference(t => t.Category).LoadAsync();
         return ApiResponse<TournamentDto>.Ok(new TournamentDto(tournament.Id, tournament.Name, tournament.Season,
-            tournament.StartDate, tournament.EndDate, tournament.Status.ToString(), tournament.CreatedAt));
+            tournament.StartDate, tournament.EndDate, tournament.Status.ToString(), tournament.CreatedAt, tournament.CategoryId, tournament.Category?.Name));
     }
 
     [Authorize(Roles = "SuperAdmin,TournamentManager")]
     [HttpPut("{id}")]
     public async Task<ApiResponse<TournamentDto>> Update(int id, TournamentUpdateDto dto)
     {
-        var t = await _db.Tournaments.FindAsync(id) ?? throw new KeyNotFoundException("Tournament not found");
+        var t = await _db.Tournaments.Include(x => x.Category).FirstOrDefaultAsync(x => x.Id == id) ?? throw new KeyNotFoundException("Tournament not found");
         t.Name = dto.Name;
         t.Season = dto.Season;
         t.StartDate = dto.StartDate;
         t.EndDate = dto.EndDate;
         t.Status = Enum.Parse<TournamentStatus>(dto.Status, true);
+        t.CategoryId = dto.CategoryId;
         await _db.SaveChangesAsync();
-        return ApiResponse<TournamentDto>.Ok(new TournamentDto(t.Id, t.Name, t.Season, t.StartDate, t.EndDate, t.Status.ToString(), t.CreatedAt));
+        await _db.Entry(t).Reference(x => x.Category).LoadAsync();
+        return ApiResponse<TournamentDto>.Ok(new TournamentDto(t.Id, t.Name, t.Season, t.StartDate, t.EndDate, t.Status.ToString(), t.CreatedAt, t.CategoryId, t.Category?.Name));
     }
 
     [Authorize(Roles = "SuperAdmin,TournamentManager")]
@@ -167,6 +174,41 @@ public class TournamentsController : ControllerBase
                 grp.Key.PlayerId, grp.Key.PlayerName, grp.Key.TeamName, grp.Sum(x => x.TotalPoints))
         ).ToListAsync();
         return ApiResponse<List<LeaderboardEntryDto>>.Ok(list);
+    }
+
+    // --- Team Standings ---
+    [HttpGet("{id}/standings")]
+    public async Task<ApiResponse<List<TournamentStandingDto>>> GetStandings(int id)
+    {
+        var teams = await _db.TournamentTeams
+            .Where(tt => tt.TournamentId == id)
+            .Include(tt => tt.Team)
+            .ToListAsync();
+
+        var games = await _db.Games
+            .Where(g => g.TournamentId == id && g.Status == GameStatus.Finished
+                        && g.HomeScore.HasValue && g.AwayScore.HasValue)
+            .ToListAsync();
+
+        var standings = teams.Select(tt =>
+        {
+            var homeGames = games.Where(g => g.HomeTeamId == tt.TeamId).ToList();
+            var awayGames = games.Where(g => g.AwayTeamId == tt.TeamId).ToList();
+
+            int wins = homeGames.Count(g => g.HomeScore > g.AwayScore)
+                     + awayGames.Count(g => g.AwayScore > g.HomeScore);
+            int losses = homeGames.Count(g => g.HomeScore < g.AwayScore)
+                       + awayGames.Count(g => g.AwayScore < g.HomeScore);
+            int pf = homeGames.Sum(g => g.HomeScore!.Value) + awayGames.Sum(g => g.AwayScore!.Value);
+            int pa = homeGames.Sum(g => g.AwayScore!.Value) + awayGames.Sum(g => g.HomeScore!.Value);
+
+            return new TournamentStandingDto(tt.TeamId, tt.Team.Name, wins, losses, pf, pa);
+        })
+        .OrderByDescending(s => s.Wins)
+        .ThenByDescending(s => s.PointsFor - s.PointsAgainst)
+        .ToList();
+
+        return ApiResponse<List<TournamentStandingDto>>.Ok(standings);
     }
 
     // --- 3.2 Team Tournament Stats ---

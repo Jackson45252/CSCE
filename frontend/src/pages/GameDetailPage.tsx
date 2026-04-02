@@ -85,6 +85,48 @@ export default function GameDetailPage() {
           {new Date(game.scheduledAt).toLocaleString()}
           {game.location && <span> &middot; {game.location}</span>}
         </div>
+
+        {/* 四節比分 */}
+        {game.status === "Finished" && (game.homeQ1 != null || game.homeQ2 != null || game.homeQ3 != null || game.homeQ4 != null) && (() => {
+          const hasOt1 = game.homeOt1 != null || game.awayOt1 != null;
+          const hasOt2 = game.homeOt2 != null || game.awayOt2 != null;
+          const cols = ["Q1", "Q2", "Q3", "Q4", ...(hasOt1 ? ["OT1"] : []), ...(hasOt2 ? ["OT2"] : []), "T"];
+          const homeVals = [game.homeQ1, game.homeQ2, game.homeQ3, game.homeQ4, ...(hasOt1 ? [game.homeOt1] : []), ...(hasOt2 ? [game.homeOt2] : []), game.homeScore];
+          const awayVals = [game.awayQ1, game.awayQ2, game.awayQ3, game.awayQ4, ...(hasOt1 ? [game.awayOt1] : []), ...(hasOt2 ? [game.awayOt2] : []), game.awayScore];
+          return (
+            <div className="mt-5 overflow-x-auto">
+              <table className="mx-auto text-sm tabular-nums border-collapse">
+                <thead>
+                  <tr>
+                    <th className="text-white/50 font-normal text-left pr-4 pb-1 min-w-20" />
+                    {cols.map((c) => (
+                      <th key={c} className={`text-white/50 font-normal pb-1 px-3 text-center ${c === "T" ? "text-white font-bold" : ""}`}>{c}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { name: game.homeTeamName, vals: homeVals, otherVals: awayVals },
+                    { name: game.awayTeamName, vals: awayVals, otherVals: homeVals },
+                  ].map(({ name, vals, otherVals }) => (
+                    <tr key={name}>
+                      <td className="text-white/70 text-left pr-4 py-1 font-medium text-xs">{name}</td>
+                      {vals.map((v, i) => {
+                        const isTotal = i === cols.length - 1;
+                        const win = isTotal && (v ?? 0) > (otherVals[i] ?? 0);
+                        return (
+                          <td key={i} className={`text-center px-3 py-1 ${isTotal ? `font-extrabold text-base ${win ? "text-nba-gold" : "text-white"}` : "text-white/90"}`}>
+                            {v ?? "-"}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          );
+        })()}
       </div>
 
       <Tabs

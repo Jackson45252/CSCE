@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useParams, Link } from "react-router-dom";
 import { fetchApi } from "../api/client";
-import type { Tournament, TournamentTeam, Game, LeaderboardEntry } from "../types";
+import type { Tournament, TournamentTeam, Game, LeaderboardEntry, TournamentStanding } from "../types";
 import Loading from "../components/Loading";
 import ErrorMessage from "../components/ErrorMessage";
 import EmptyState from "../components/EmptyState";
@@ -11,7 +11,7 @@ import { useState } from "react";
 
 export default function TournamentDetailPage() {
   const { id } = useParams();
-  const [activeTab, setActiveTab] = useState("teams");
+  const [activeTab, setActiveTab] = useState("standings");
 
   const { data: tournament, isLoading, error } = useQuery({
     queryKey: ["tournament", id],
@@ -28,6 +28,10 @@ export default function TournamentDetailPage() {
   const { data: leaderboard } = useQuery({
     queryKey: ["leaderboard", id],
     queryFn: () => fetchApi<LeaderboardEntry[]>(`/tournaments/${id}/leaderboard`),
+  });
+  const { data: standings } = useQuery({
+    queryKey: ["standings", id],
+    queryFn: () => fetchApi<TournamentStanding[]>(`/tournaments/${id}/standings`),
   });
 
   if (isLoading) return <Loading />;
@@ -51,6 +55,7 @@ export default function TournamentDetailPage() {
 
       <Tabs
         tabs={[
+          { key: "standings", label: "戰績" },
           { key: "teams", label: "參賽隊伍" },
           { key: "games", label: "比賽" },
           { key: "leaderboard", label: "排行榜" },
@@ -58,6 +63,52 @@ export default function TournamentDetailPage() {
         activeKey={activeTab}
         onChange={setActiveTab}
       />
+
+      {activeTab === "standings" && (
+        <>
+          {!standings || standings.length === 0 ? (
+            <EmptyState message="尚無戰績資料" />
+          ) : (
+            <div className="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
+              <table className="w-full text-sm nba-table">
+                <thead>
+                  <tr className="bg-nba-navy text-white text-[11px] uppercase tracking-wider">
+                    <th className="px-4 py-2.5 text-left font-semibold w-10">#</th>
+                    <th className="px-4 py-2.5 text-left font-semibold">隊伍</th>
+                    <th className="px-4 py-2.5 text-center font-semibold">勝</th>
+                    <th className="px-4 py-2.5 text-center font-semibold">敗</th>
+                    <th className="px-4 py-2.5 text-center font-semibold">總得分</th>
+                    <th className="px-4 py-2.5 text-center font-semibold">總失分</th>
+                    <th className="px-4 py-2.5 text-center font-semibold">得失分差</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {standings.map((s, i) => {
+                    const diff = s.pointsFor - s.pointsAgainst;
+                    return (
+                      <tr key={s.teamId} className="border-b border-gray-100">
+                        <td className="px-4 py-2.5 text-gray-400 text-center">{i + 1}</td>
+                        <td className="px-4 py-2.5">
+                          <Link to={`/teams/${s.teamId}`} className="font-semibold text-nba-navy hover:text-nba-blue transition-colors">
+                            {s.teamName}
+                          </Link>
+                        </td>
+                        <td className="px-4 py-2.5 text-center font-extrabold text-green-600 tabular-nums">{s.wins}</td>
+                        <td className="px-4 py-2.5 text-center font-extrabold text-nba-red tabular-nums">{s.losses}</td>
+                        <td className="px-4 py-2.5 text-center tabular-nums">{s.pointsFor}</td>
+                        <td className="px-4 py-2.5 text-center tabular-nums">{s.pointsAgainst}</td>
+                        <td className={`px-4 py-2.5 text-center font-semibold tabular-nums ${diff > 0 ? "text-green-600" : diff < 0 ? "text-nba-red" : "text-gray-400"}`}>
+                          {diff > 0 ? `+${diff}` : diff}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </>
+      )}
 
       {activeTab === "teams" && (
         <>

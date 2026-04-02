@@ -10,6 +10,7 @@ public class AppDbContext : DbContext
     public DbSet<Player> Players => Set<Player>();
     public DbSet<Team> Teams => Set<Team>();
     public DbSet<TeamMember> TeamMembers => Set<TeamMember>();
+    public DbSet<TournamentCategory> TournamentCategories => Set<TournamentCategory>();
     public DbSet<Tournament> Tournaments => Set<Tournament>();
     public DbSet<TournamentTeam> TournamentTeams => Set<TournamentTeam>();
     public DbSet<TournamentRoster> TournamentRosters => Set<TournamentRoster>();
@@ -63,12 +64,21 @@ public class AppDbContext : DbContext
             e.HasOne(tm => tm.Player).WithMany(p => p.TeamMembers).HasForeignKey(tm => tm.PlayerId);
         });
 
+        // --- TournamentCategory ---
+        modelBuilder.Entity<TournamentCategory>(e =>
+        {
+            e.Property(c => c.Name).HasMaxLength(100).IsRequired();
+            e.HasIndex(c => c.Name).IsUnique();
+            e.Property(c => c.Description).HasMaxLength(500);
+        });
+
         // --- Tournament ---
         modelBuilder.Entity<Tournament>(e =>
         {
             e.Property(t => t.Name).HasMaxLength(100).IsRequired();
-            e.Property(t => t.Season).HasMaxLength(20).IsRequired();
+            e.Property(t => t.Season).HasMaxLength(50).IsRequired();
             e.Property(t => t.Status).HasConversion<string>().HasMaxLength(20);
+            e.HasOne(t => t.Category).WithMany(c => c.Tournaments).HasForeignKey(t => t.CategoryId).OnDelete(DeleteBehavior.SetNull);
         });
 
         // --- TournamentTeam ---

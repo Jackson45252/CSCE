@@ -23,7 +23,10 @@ public class GamesController : ControllerBase
         var list = await query.OrderByDescending(g => g.ScheduledAt)
             .Select(g => new GameDto(g.Id, g.TournamentId, g.HomeTeamId, g.HomeTeam.Name,
                 g.AwayTeamId, g.AwayTeam.Name, g.ScheduledAt, g.Location, g.Status.ToString(),
-                g.HomeScore, g.AwayScore, g.CreatedAt))
+                g.HomeScore, g.AwayScore,
+                g.HomeQ1, g.HomeQ2, g.HomeQ3, g.HomeQ4, g.HomeOt1, g.HomeOt2,
+                g.AwayQ1, g.AwayQ2, g.AwayQ3, g.AwayQ4, g.AwayOt1, g.AwayOt2,
+                g.CreatedAt))
             .ToListAsync();
         return ApiResponse<List<GameDto>>.Ok(list);
     }
@@ -35,7 +38,10 @@ public class GamesController : ControllerBase
             .FirstOrDefaultAsync(g => g.Id == id) ?? throw new KeyNotFoundException("Game not found");
         return ApiResponse<GameDto>.Ok(new GameDto(g.Id, g.TournamentId, g.HomeTeamId, g.HomeTeam.Name,
             g.AwayTeamId, g.AwayTeam.Name, g.ScheduledAt, g.Location, g.Status.ToString(),
-            g.HomeScore, g.AwayScore, g.CreatedAt));
+            g.HomeScore, g.AwayScore,
+            g.HomeQ1, g.HomeQ2, g.HomeQ3, g.HomeQ4, g.HomeOt1, g.HomeOt2,
+            g.AwayQ1, g.AwayQ2, g.AwayQ3, g.AwayQ4, g.AwayOt1, g.AwayOt2,
+            g.CreatedAt));
     }
 
     [Authorize(Roles = "SuperAdmin,TournamentManager")]
@@ -60,7 +66,10 @@ public class GamesController : ControllerBase
         await _db.SaveChangesAsync();
         return ApiResponse<GameDto>.Ok(new GameDto(game.Id, game.TournamentId, game.HomeTeamId, homeTeam.Name,
             game.AwayTeamId, awayTeam.Name, game.ScheduledAt, game.Location, game.Status.ToString(),
-            game.HomeScore, game.AwayScore, game.CreatedAt));
+            game.HomeScore, game.AwayScore,
+            null, null, null, null, null, null,
+            null, null, null, null, null, null,
+            game.CreatedAt));
     }
 
     [Authorize(Roles = "SuperAdmin,TournamentManager")]
@@ -74,10 +83,17 @@ public class GamesController : ControllerBase
         g.Status = Enum.Parse<GameStatus>(dto.Status, true);
         g.HomeScore = dto.HomeScore;
         g.AwayScore = dto.AwayScore;
+        g.HomeQ1 = dto.HomeQ1; g.HomeQ2 = dto.HomeQ2; g.HomeQ3 = dto.HomeQ3; g.HomeQ4 = dto.HomeQ4;
+        g.HomeOt1 = dto.HomeOt1; g.HomeOt2 = dto.HomeOt2;
+        g.AwayQ1 = dto.AwayQ1; g.AwayQ2 = dto.AwayQ2; g.AwayQ3 = dto.AwayQ3; g.AwayQ4 = dto.AwayQ4;
+        g.AwayOt1 = dto.AwayOt1; g.AwayOt2 = dto.AwayOt2;
         await _db.SaveChangesAsync();
         return ApiResponse<GameDto>.Ok(new GameDto(g.Id, g.TournamentId, g.HomeTeamId, g.HomeTeam.Name,
             g.AwayTeamId, g.AwayTeam.Name, g.ScheduledAt, g.Location, g.Status.ToString(),
-            g.HomeScore, g.AwayScore, g.CreatedAt));
+            g.HomeScore, g.AwayScore,
+            g.HomeQ1, g.HomeQ2, g.HomeQ3, g.HomeQ4, g.HomeOt1, g.HomeOt2,
+            g.AwayQ1, g.AwayQ2, g.AwayQ3, g.AwayQ4, g.AwayOt1, g.AwayOt2,
+            g.CreatedAt));
     }
 
     [Authorize(Roles = "SuperAdmin,TournamentManager")]

@@ -27,6 +27,13 @@ export interface TeamMember {
   joinedAt: string;
 }
 
+export interface TournamentCategory {
+  id: number;
+  name: string;
+  description?: string;
+  createdAt: string;
+}
+
 export interface Tournament {
   id: number;
   name: string;
@@ -35,6 +42,8 @@ export interface Tournament {
   endDate?: string;
   status: string;
   createdAt: string;
+  categoryId?: number;
+  categoryName?: string;
 }
 
 export interface TournamentTeam {
@@ -64,6 +73,18 @@ export interface Game {
   status: string;
   homeScore?: number;
   awayScore?: number;
+  homeQ1?: number;
+  homeQ2?: number;
+  homeQ3?: number;
+  homeQ4?: number;
+  homeOt1?: number;
+  homeOt2?: number;
+  awayQ1?: number;
+  awayQ2?: number;
+  awayQ3?: number;
+  awayQ4?: number;
+  awayOt1?: number;
+  awayOt2?: number;
   createdAt: string;
 }
 
@@ -82,6 +103,15 @@ export interface PlayerGameStats {
   freeThrowPoints: number;
   totalPoints: number;
   createdAt: string;
+}
+
+export interface TournamentStanding {
+  teamId: number;
+  teamName: string;
+  wins: number;
+  losses: number;
+  pointsFor: number;
+  pointsAgainst: number;
 }
 
 export interface LeaderboardEntry {
