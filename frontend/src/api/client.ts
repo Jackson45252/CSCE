@@ -38,4 +38,12 @@ export async function deleteApi<T>(url: string): Promise<T> {
   return data.data as T;
 }
 
+export async function postFormApi<T>(url: string, formData: FormData): Promise<T> {
+  const { data } = await api.post<ApiResponse<T>>(url, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  if (!data.success) throw new Error(data.error ?? "Unknown error");
+  return data.data as T;
+}
+
 export default api;

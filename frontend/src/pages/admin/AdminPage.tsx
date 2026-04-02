@@ -2,6 +2,7 @@ import { NavLink, Outlet, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 
 const allTabs = [
+  { to: "/admin/news", label: "最新消息", roles: ["SuperAdmin", "TournamentManager"] },
   { to: "/admin/players", label: "球員", roles: ["SuperAdmin", "TournamentManager"] },
   { to: "/admin/teams", label: "隊伍", roles: ["SuperAdmin", "TournamentManager"] },
   { to: "/admin/tournaments", label: "賽事", roles: ["SuperAdmin", "TournamentManager"] },

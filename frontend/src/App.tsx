@@ -19,6 +19,9 @@ import StatsAdmin from "./pages/admin/StatsAdmin";
 import AccountAdmin from "./pages/admin/AccountAdmin";
 import RoleAdmin from "./pages/admin/RoleAdmin";
 import BatchRosterAdmin from "./pages/admin/BatchRosterAdmin";
+import NewsPage from "./pages/NewsPage";
+import NewsDetailPage from "./pages/NewsDetailPage";
+import NewsAdmin from "./pages/admin/NewsAdmin";
 
 export default function App() {
   return (
@@ -26,6 +29,8 @@ export default function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route element={<Layout />}>
         <Route path="/" element={<TournamentsPage />} />
+        <Route path="/news" element={<NewsPage />} />
+        <Route path="/news/:id" element={<NewsDetailPage />} />
         <Route path="/tournaments/:id" element={<TournamentDetailPage />} />
         <Route path="/tournaments/:id/leaderboard" element={<LeaderboardPage />} />
         <Route path="/games/:id" element={<GameDetailPage />} />
@@ -41,6 +46,7 @@ export default function App() {
             </ProtectedRoute>
           }
         >
+          <Route path="news" element={<NewsAdmin />} />
           <Route path="players" element={<PlayerAdmin />} />
           <Route path="teams" element={<TeamAdmin />} />
           <Route path="tournaments" element={<TournamentAdmin />} />

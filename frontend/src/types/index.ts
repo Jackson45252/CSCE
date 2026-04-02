@@ -181,3 +181,35 @@ export interface BoxScoreEntry {
   freeThrowPoints: number;
   totalPoints: number;
 }
+
+export interface NewsAttachment {
+  id: number;
+  newsId: number;
+  fileName: string;
+  fileUrl: string;
+  mimeType: string;
+  fileSize: number;
+  isImage: boolean;
+  createdAt: string;
+}
+
+export interface NewsListItem {
+  id: number;
+  title: string;
+  isPublished: boolean;
+  publishedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+  coverImageUrl?: string;
+}
+
+export interface News {
+  id: number;
+  title: string;
+  content: string;
+  isPublished: boolean;
+  publishedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+  attachments: NewsAttachment[];
+}

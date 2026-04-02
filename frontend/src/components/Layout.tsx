@@ -2,6 +2,7 @@ import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
 const publicNavItems = [
+  { to: "/news", label: "最新消息" },
   { to: "/", label: "賽事" },
   { to: "/teams", label: "隊伍" },
   { to: "/players", label: "球員" },

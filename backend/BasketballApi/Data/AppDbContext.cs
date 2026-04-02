@@ -18,6 +18,8 @@ public class AppDbContext : DbContext
     public DbSet<PlayerGameStats> PlayerGameStats => Set<PlayerGameStats>();
     public DbSet<Admin> Admins => Set<Admin>();
     public DbSet<Role> Roles => Set<Role>();
+    public DbSet<News> News => Set<News>();
+    public DbSet<NewsAttachment> NewsAttachments => Set<NewsAttachment>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -115,6 +117,25 @@ public class AppDbContext : DbContext
             e.HasOne(pgs => pgs.Game).WithMany(g => g.PlayerGameStats).HasForeignKey(pgs => pgs.GameId);
             e.HasOne(pgs => pgs.Player).WithMany(p => p.GameStats).HasForeignKey(pgs => pgs.PlayerId);
             e.HasOne(pgs => pgs.Team).WithMany().HasForeignKey(pgs => pgs.TeamId).OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // --- News ---
+        modelBuilder.Entity<News>(e =>
+        {
+            e.Property(n => n.Title).HasMaxLength(200).IsRequired();
+        });
+
+        // --- NewsAttachment ---
+        modelBuilder.Entity<NewsAttachment>(e =>
+        {
+            e.Property(a => a.FileName).HasMaxLength(255).IsRequired();
+            e.Property(a => a.FilePath).HasMaxLength(500).IsRequired();
+            e.Property(a => a.FileUrl).HasMaxLength(500).IsRequired();
+            e.Property(a => a.MimeType).HasMaxLength(100).IsRequired();
+            e.HasOne(a => a.News)
+             .WithMany(n => n.Attachments)
+             .HasForeignKey(a => a.NewsId)
+             .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }
