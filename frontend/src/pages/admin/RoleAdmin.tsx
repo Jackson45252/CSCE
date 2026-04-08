@@ -44,42 +44,44 @@ export default function RoleAdmin() {
           + 新增角色
         </button>
       </PageHeader>
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="border-b bg-gray-50 text-left text-gray-500">
-            <th className="px-3 py-2">ID</th>
-            <th className="px-3 py-2">名稱</th>
-            <th className="px-3 py-2">說明</th>
-            <th className="px-3 py-2">建立時間</th>
-            <th className="px-3 py-2 text-right">操作</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data!.map((r) => (
-            <tr key={r.id} className="border-b hover:bg-gray-50">
-              <td className="px-3 py-2 text-gray-400">{r.id}</td>
-              <td className="px-3 py-2 font-medium">{r.name}</td>
-              <td className="px-3 py-2 text-gray-500">{r.description}</td>
-              <td className="px-3 py-2 text-gray-500">{new Date(r.createdAt).toLocaleString()}</td>
-              <td className="px-3 py-2 text-right space-x-2">
-                <button onClick={() => openEdit(r)} className="text-nba-blue hover:underline text-xs font-semibold">編輯</button>
-                <button onClick={() => { if (confirm("確定刪除？")) remove.mutate(r.id); }} className="text-nba-red hover:underline text-xs font-semibold">刪除</button>
-              </td>
+      <div className="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
+        <table className="nba-table w-full text-sm">
+          <thead>
+            <tr className="bg-nba-navy text-white text-[11px] uppercase tracking-wider">
+              <th className="px-4 py-2.5 text-left font-semibold">ID</th>
+              <th className="px-4 py-2.5 text-left font-semibold">名稱</th>
+              <th className="px-4 py-2.5 text-left font-semibold">說明</th>
+              <th className="px-4 py-2.5 text-left font-semibold">建立時間</th>
+              <th className="px-4 py-2.5 text-right font-semibold">操作</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {data!.map((r) => (
+              <tr key={r.id} className="border-b border-gray-100 hover:bg-gray-50">
+                <td className="px-4 py-2.5 text-gray-400">{r.id}</td>
+                <td className="px-4 py-2.5 font-medium">{r.name}</td>
+                <td className="px-4 py-2.5 text-gray-500">{r.description}</td>
+                <td className="px-4 py-2.5 text-gray-500">{new Date(r.createdAt).toLocaleString()}</td>
+                <td className="px-4 py-2.5 text-right space-x-2">
+                  <button onClick={() => openEdit(r)} className="text-nba-blue hover:underline text-xs font-semibold">編輯</button>
+                  <button onClick={() => { if (confirm("確定刪除？")) remove.mutate(r.id); }} className="text-nba-red hover:underline text-xs font-semibold">刪除</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
       <Modal open={!!modal} onClose={() => setModal(null)} title={modal?.mode === "edit" ? "編輯角色" : "新增角色"}>
         <form onSubmit={(e) => { e.preventDefault(); save.mutate(); }} className="space-y-4">
           <div>
             <label className="block text-sm text-gray-600 mb-1">角色名稱</label>
             <input value={name} onChange={(e) => setName(e.target.value)} required
-              className="w-full rounded border px-3 py-2 text-sm focus:outline-none focus:border-nba-blue transition-colors" />
+              className="w-full rounded-lg border-2 border-gray-200 px-3 py-2 text-sm focus:outline-none focus:border-nba-blue transition-colors" />
           </div>
           <div>
             <label className="block text-sm text-gray-600 mb-1">說明</label>
             <input value={description} onChange={(e) => setDescription(e.target.value)}
-              className="w-full rounded border px-3 py-2 text-sm focus:outline-none focus:border-nba-blue transition-colors" />
+              className="w-full rounded-lg border-2 border-gray-200 px-3 py-2 text-sm focus:outline-none focus:border-nba-blue transition-colors" />
           </div>
           <button type="submit" className="w-full rounded-lg bg-nba-navy py-2.5 text-sm text-white font-bold uppercase tracking-wider hover:bg-nba-blue transition-colors">
             {save.isPending ? "儲存中..." : "儲存"}

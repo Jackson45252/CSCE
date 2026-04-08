@@ -59,34 +59,36 @@ export default function TeamAdmin() {
       <PageHeader title="隊伍管理" size="sm">
         <button onClick={openAdd} className="rounded-lg bg-nba-navy px-3 py-1.5 text-sm text-white font-semibold hover:bg-nba-blue transition-colors">+ 新增隊伍</button>
       </PageHeader>
-      <table className="w-full text-sm">
-        <thead><tr className="border-b bg-gray-50 text-left text-gray-500">
-          <th className="px-3 py-2">ID</th><th className="px-3 py-2">名稱</th><th className="px-3 py-2 text-right">操作</th>
-        </tr></thead>
-        <tbody>
-          {data!.map((t) => (
-            <tr key={t.id} className="border-b hover:bg-gray-50">
-              <td className="px-3 py-2 text-gray-400">{t.id}</td>
-              <td className="px-3 py-2">{t.name}</td>
-              <td className="px-3 py-2 text-right space-x-2">
-                <button onClick={() => setMemberModal(t.id)} className="text-nba-gold hover:underline text-xs font-semibold">成員</button>
-                <button onClick={() => openEdit(t)} className="text-nba-blue hover:underline text-xs font-semibold">編輯</button>
-                <button onClick={() => { if (confirm("確定刪除？")) remove.mutate(t.id); }} className="text-nba-red hover:underline text-xs font-semibold">刪除</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div className="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
+        <table className="w-full text-sm nba-table">
+          <thead><tr className="bg-nba-navy text-white text-[11px] uppercase tracking-wider">
+            <th className="px-4 py-2.5 text-left font-semibold">ID</th><th className="px-4 py-2.5 text-left font-semibold">名稱</th><th className="px-4 py-2.5 text-right font-semibold">操作</th>
+          </tr></thead>
+          <tbody>
+            {data!.map((t) => (
+              <tr key={t.id} className="border-b border-gray-100 hover:bg-gray-50">
+                <td className="px-4 py-2.5 text-gray-400">{t.id}</td>
+                <td className="px-4 py-2.5">{t.name}</td>
+                <td className="px-4 py-2.5 text-right space-x-2">
+                  <button onClick={() => setMemberModal(t.id)} className="text-nba-gold hover:underline text-xs font-semibold">成員</button>
+                  <button onClick={() => openEdit(t)} className="text-nba-blue hover:underline text-xs font-semibold">編輯</button>
+                  <button onClick={() => { if (confirm("確定刪除？")) remove.mutate(t.id); }} className="text-nba-red hover:underline text-xs font-semibold">刪除</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       {/* Team CRUD Modal */}
       <Modal open={!!modal} onClose={() => setModal(null)} title={modal?.mode === "edit" ? "編輯隊伍" : "新增隊伍"}>
         <form onSubmit={(e) => { e.preventDefault(); save.mutate(); }}>
           <label className="block text-sm text-gray-600 mb-1">名稱</label>
           <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required
-            className="w-full rounded border px-3 py-2 text-sm mb-3 focus:outline-none focus:border-nba-blue transition-colors" />
+            className="w-full rounded-lg border-2 border-gray-200 px-3 py-2 text-sm mb-3 focus:outline-none focus:border-nba-blue transition-colors" />
           <label className="block text-sm text-gray-600 mb-1">Logo 網址</label>
           <input value={form.logoUrl} onChange={(e) => setForm({ ...form, logoUrl: e.target.value })}
-            className="w-full rounded border px-3 py-2 text-sm mb-4 focus:outline-none focus:border-nba-blue transition-colors" />
+            className="w-full rounded-lg border-2 border-gray-200 px-3 py-2 text-sm mb-4 focus:outline-none focus:border-nba-blue transition-colors" />
           <button type="submit" className="w-full rounded-lg bg-nba-navy py-2.5 text-sm text-white font-bold uppercase tracking-wider hover:bg-nba-blue transition-colors">
             {save.isPending ? "儲存中..." : "儲存"}
           </button>

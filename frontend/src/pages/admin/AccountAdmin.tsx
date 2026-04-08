@@ -50,44 +50,46 @@ export default function AccountAdmin() {
           + 新增帳號
         </button>
       </PageHeader>
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="border-b bg-gray-50 text-left text-gray-500">
-            <th className="px-3 py-2">ID</th>
-            <th className="px-3 py-2">帳號</th>
-            <th className="px-3 py-2">角色</th>
-            <th className="px-3 py-2">建立時間</th>
-            <th className="px-3 py-2 text-right">操作</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data!.map((a) => (
-            <tr key={a.id} className="border-b hover:bg-gray-50">
-              <td className="px-3 py-2 text-gray-400">{a.id}</td>
-              <td className="px-3 py-2">{a.username}</td>
-              <td className="px-3 py-2 space-x-1">
-                {a.roles.map(r => (
-                  <span key={r} className="inline-block rounded-full bg-gray-100 text-gray-700 px-2 py-0.5 text-xs font-medium">
-                    {r}
-                  </span>
-                ))}
-              </td>
-              <td className="px-3 py-2 text-gray-500">{new Date(a.createdAt).toLocaleString()}</td>
-              <td className="px-3 py-2 text-right space-x-2">
-                <button onClick={() => openEdit(a)} className="text-nba-blue hover:underline text-xs font-semibold">編輯</button>
-                <button onClick={() => { if (confirm("確定刪除？")) remove.mutate(a.id); }} className="text-nba-red hover:underline text-xs font-semibold">刪除</button>
-              </td>
+      <div className="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
+        <table className="nba-table w-full text-sm">
+          <thead>
+            <tr className="bg-nba-navy text-white text-[11px] uppercase tracking-wider">
+              <th className="px-4 py-2.5 text-left font-semibold">ID</th>
+              <th className="px-4 py-2.5 text-left font-semibold">帳號</th>
+              <th className="px-4 py-2.5 text-left font-semibold">角色</th>
+              <th className="px-4 py-2.5 text-left font-semibold">建立時間</th>
+              <th className="px-4 py-2.5 text-right font-semibold">操作</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {data!.map((a) => (
+              <tr key={a.id} className="border-b border-gray-100 hover:bg-gray-50">
+                <td className="px-4 py-2.5 text-gray-400">{a.id}</td>
+                <td className="px-4 py-2.5">{a.username}</td>
+                <td className="px-4 py-2.5 space-x-1">
+                  {a.roles.map(r => (
+                    <span key={r} className="inline-block rounded-full bg-gray-100 text-gray-700 px-2 py-0.5 text-xs font-medium">
+                      {r}
+                    </span>
+                  ))}
+                </td>
+                <td className="px-4 py-2.5 text-gray-500">{new Date(a.createdAt).toLocaleString()}</td>
+                <td className="px-4 py-2.5 text-right space-x-2">
+                  <button onClick={() => openEdit(a)} className="text-nba-blue hover:underline text-xs font-semibold">編輯</button>
+                  <button onClick={() => { if (confirm("確定刪除？")) remove.mutate(a.id); }} className="text-nba-red hover:underline text-xs font-semibold">刪除</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
       <Modal open={!!modal} onClose={() => setModal(null)} title={modal?.mode === "edit" ? "編輯帳號" : "新增帳號"}>
         <form onSubmit={(e) => { e.preventDefault(); save.mutate(); }}>
           {modal?.mode === "add" && (
             <>
               <label className="block text-sm text-gray-600 mb-1">帳號</label>
               <input value={username} onChange={(e) => setUsername(e.target.value)} required
-                className="w-full rounded border px-3 py-2 text-sm mb-4 focus:outline-none focus:border-nba-blue transition-colors" />
+                className="w-full rounded-lg border-2 border-gray-200 px-3 py-2 text-sm mb-4 focus:outline-none focus:border-nba-blue transition-colors" />
             </>
           )}
           {modal?.mode === "edit" && (
@@ -98,7 +100,7 @@ export default function AccountAdmin() {
           </label>
           <input type="password" value={password} onChange={(e) => setPassword(e.target.value)}
             required={modal?.mode === "add"}
-            className="w-full rounded border px-3 py-2 text-sm mb-4 focus:outline-none focus:border-nba-blue transition-colors" />
+            className="w-full rounded-lg border-2 border-gray-200 px-3 py-2 text-sm mb-4 focus:outline-none focus:border-nba-blue transition-colors" />
           <label className="block text-sm text-gray-600 mb-1">角色</label>
           <div className="flex flex-wrap gap-4 mb-4">
             {allRoles?.map((r) => (

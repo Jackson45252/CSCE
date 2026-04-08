@@ -351,16 +351,16 @@ export default function StatsAdmin() {
 
           {/* stats table — unified 11-col layout */}
           <div className="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
-            <table className="w-full text-sm">
+            <table className="w-full text-sm nba-table">
               <thead>
                 <tr className="bg-nba-navy text-white text-[11px] uppercase tracking-wider">
-                  <th className="px-3 py-2.5 text-left font-semibold">球員</th>
+                  <th className="px-4 py-2.5 text-left font-semibold">球員</th>
                   {statFields.map((f) => (
-                    <th key={f.key} className="px-2 py-2.5 text-center font-semibold">{f.label}</th>
+                    <th key={f.key} className="px-4 py-2.5 text-center font-semibold">{f.label}</th>
                   ))}
-                  <th className="px-3 py-2.5 text-right font-semibold">FG%</th>
-                  <th className="px-3 py-2.5 text-right font-semibold">PTS</th>
-                  <th className="px-3 py-2.5 text-right font-semibold">操作</th>
+                  <th className="px-4 py-2.5 text-right font-semibold">FG%</th>
+                  <th className="px-4 py-2.5 text-right font-semibold">PTS</th>
+                  <th className="px-4 py-2.5 text-right font-semibold">操作</th>
                 </tr>
               </thead>
               <tbody>

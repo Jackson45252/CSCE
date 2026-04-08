@@ -112,23 +112,23 @@ export default function GameAdmin() {
           👆 請在上方選擇賽事以查看與管理比賽
         </div>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-          <thead><tr className="border-b bg-gray-50 text-left text-gray-500">
-            <th className="px-3 py-2">主隊</th><th className="px-3 py-2">客隊</th>
-            <th className="px-3 py-2">比分</th><th className="px-3 py-2">狀態</th><th className="px-3 py-2 text-right">操作</th>
+        <div className="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
+          <table className="w-full text-sm nba-table">
+          <thead><tr className="bg-nba-navy text-white text-[11px] uppercase tracking-wider">
+            <th className="px-4 py-2.5 text-left font-semibold">主隊</th><th className="px-4 py-2.5 text-left font-semibold">客隊</th>
+            <th className="px-4 py-2.5 text-left font-semibold">比分</th><th className="px-4 py-2.5 text-left font-semibold">狀態</th><th className="px-4 py-2.5 text-right font-semibold">操作</th>
           </tr></thead>
           <tbody>
             {filteredGames.length === 0 ? (
-              <tr><td colSpan={5} className="px-3 py-8 text-center text-gray-500">此條件下沒有比賽</td></tr>
+              <tr><td colSpan={5} className="px-4 py-8 text-center text-gray-500">此條件下沒有比賽</td></tr>
             ) : (
               filteredGames.map((g) => (
-                <tr key={g.id} className="border-b hover:bg-gray-50">
-                  <td className="px-3 py-2">{g.homeTeamName}</td>
-                  <td className="px-3 py-2">{g.awayTeamName}</td>
-                  <td className="px-3 py-2">{g.status === "Finished" ? `${g.homeScore} - ${g.awayScore}` : "-"}</td>
-                  <td className="px-3 py-2"><StatusBadge status={g.status} /></td>
-                  <td className="px-3 py-2 text-right space-x-2">
+                <tr key={g.id} className="border-b border-gray-100 hover:bg-gray-50">
+                  <td className="px-4 py-2.5">{g.homeTeamName}</td>
+                  <td className="px-4 py-2.5">{g.awayTeamName}</td>
+                  <td className="px-4 py-2.5">{g.status === "Finished" ? `${g.homeScore} - ${g.awayScore}` : "-"}</td>
+                  <td className="px-4 py-2.5"><StatusBadge status={g.status} /></td>
+                  <td className="px-4 py-2.5 text-right space-x-2">
                     <button onClick={() => openEdit(g)} className="text-nba-blue hover:underline text-xs font-semibold">編輯</button>
                     <button onClick={() => { if (confirm("確定刪除？")) remove.mutate(g.id); }} className="text-nba-red hover:underline text-xs font-semibold">刪除</button>
                   </td>
@@ -143,22 +143,22 @@ export default function GameAdmin() {
       {/* Add Modal */}
       <Modal open={addModal} onClose={() => setAddModal(false)} title="新增比賽">
         <form onSubmit={(e) => { e.preventDefault(); create.mutate(); }} className="space-y-3">
-          <select value={form.tournamentId} onChange={(e) => setForm({ ...form, tournamentId: e.target.value })} required className="w-full rounded border px-3 py-2 text-sm">
+          <select value={form.tournamentId} onChange={(e) => setForm({ ...form, tournamentId: e.target.value })} required className="w-full rounded-lg border-2 border-gray-200 px-3 py-2 text-sm focus:outline-none focus:border-nba-blue transition-colors">
             <option value="">賽事</option>
             {tournaments?.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
           </select>
-          <select value={form.homeTeamId} onChange={(e) => setForm({ ...form, homeTeamId: e.target.value })} required className="w-full rounded border px-3 py-2 text-sm">
+          <select value={form.homeTeamId} onChange={(e) => setForm({ ...form, homeTeamId: e.target.value })} required className="w-full rounded-lg border-2 border-gray-200 px-3 py-2 text-sm focus:outline-none focus:border-nba-blue transition-colors">
             <option value="">主隊</option>
             {teams?.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
           </select>
-          <select value={form.awayTeamId} onChange={(e) => setForm({ ...form, awayTeamId: e.target.value })} required className="w-full rounded border px-3 py-2 text-sm">
+          <select value={form.awayTeamId} onChange={(e) => setForm({ ...form, awayTeamId: e.target.value })} required className="w-full rounded-lg border-2 border-gray-200 px-3 py-2 text-sm focus:outline-none focus:border-nba-blue transition-colors">
             <option value="">客隊</option>
             {teams?.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
           </select>
           <input type="datetime-local" value={form.scheduledAt} onChange={(e) => setForm({ ...form, scheduledAt: e.target.value })} required
-            className="w-full rounded border px-3 py-2 text-sm" />
+            className="w-full rounded-lg border-2 border-gray-200 px-3 py-2 text-sm focus:outline-none focus:border-nba-blue transition-colors" />
           <input value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} placeholder="地點"
-            className="w-full rounded border px-3 py-2 text-sm" />
+            className="w-full rounded-lg border-2 border-gray-200 px-3 py-2 text-sm focus:outline-none focus:border-nba-blue transition-colors" />
           <button type="submit" className="w-full rounded-lg bg-nba-navy py-2.5 text-sm text-white font-bold uppercase tracking-wider hover:bg-nba-blue transition-colors">
             {create.isPending ? "儲存中..." : "儲存"}
           </button>
@@ -169,17 +169,17 @@ export default function GameAdmin() {
       <Modal open={!!editModal} onClose={() => setEditModal(null)} title="編輯比賽">
         <form onSubmit={(e) => { e.preventDefault(); update.mutate(); }} className="space-y-3">
           <input type="datetime-local" value={upd.scheduledAt.slice(0, 16)} onChange={(e) => setUpd({ ...upd, scheduledAt: e.target.value })}
-            className="w-full rounded border px-3 py-2 text-sm" />
+            className="w-full rounded-lg border-2 border-gray-200 px-3 py-2 text-sm focus:outline-none focus:border-nba-blue transition-colors" />
           <input value={upd.location} onChange={(e) => setUpd({ ...upd, location: e.target.value })} placeholder="地點"
-            className="w-full rounded border px-3 py-2 text-sm" />
-          <select value={upd.status} onChange={(e) => setUpd({ ...upd, status: e.target.value })} className="w-full rounded border px-3 py-2 text-sm">
+            className="w-full rounded-lg border-2 border-gray-200 px-3 py-2 text-sm focus:outline-none focus:border-nba-blue transition-colors" />
+          <select value={upd.status} onChange={(e) => setUpd({ ...upd, status: e.target.value })} className="w-full rounded-lg border-2 border-gray-200 px-3 py-2 text-sm focus:outline-none focus:border-nba-blue transition-colors">
             <option value="Upcoming">即將開始</option><option value="Ongoing">進行中</option><option value="Finished">已結束</option>
           </select>
           <div className="flex gap-2">
             <input type="number" value={upd.homeScore} onChange={(e) => setUpd({ ...upd, homeScore: e.target.value })}
-              placeholder="主隊得分" className="flex-1 rounded border px-3 py-2 text-sm" />
+              placeholder="主隊得分" className="flex-1 rounded-lg border-2 border-gray-200 px-3 py-2 text-sm focus:outline-none focus:border-nba-blue transition-colors" />
             <input type="number" value={upd.awayScore} onChange={(e) => setUpd({ ...upd, awayScore: e.target.value })}
-              placeholder="客隊得分" className="flex-1 rounded border px-3 py-2 text-sm" />
+              placeholder="客隊得分" className="flex-1 rounded-lg border-2 border-gray-200 px-3 py-2 text-sm focus:outline-none focus:border-nba-blue transition-colors" />
           </div>
           <button type="submit" className="w-full rounded-lg bg-nba-navy py-2.5 text-sm text-white font-bold uppercase tracking-wider hover:bg-nba-blue transition-colors">
             {update.isPending ? "儲存中..." : "儲存"}

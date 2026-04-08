@@ -142,18 +142,19 @@ export default function TournamentAdmin() {
       </PageHeader>
 
       {tab === "tournaments" && (
-        <table className="w-full text-sm">
-          <thead><tr className="border-b bg-gray-50 text-left text-gray-500">
-            <th className="px-3 py-2">名稱</th><th className="px-3 py-2">分類</th><th className="px-3 py-2">屆次</th><th className="px-3 py-2">狀態</th><th className="px-3 py-2 text-right">操作</th>
+        <div className="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
+        <table className="w-full text-sm nba-table">
+          <thead><tr className="bg-nba-navy text-white text-[11px] uppercase tracking-wider">
+            <th className="px-4 py-2.5 text-left font-semibold">名稱</th><th className="px-4 py-2.5 text-left font-semibold">分類</th><th className="px-4 py-2.5 text-left font-semibold">屆次</th><th className="px-4 py-2.5 text-left font-semibold">狀態</th><th className="px-4 py-2.5 text-right font-semibold">操作</th>
           </tr></thead>
           <tbody>
             {data!.map((t) => (
-              <tr key={t.id} className="border-b hover:bg-gray-50">
-                <td className="px-3 py-2">{t.name}</td>
-                <td className="px-3 py-2 text-gray-400 text-xs">{t.categoryName ?? "—"}</td>
-                <td className="px-3 py-2">{t.season}</td>
-                <td className="px-3 py-2"><StatusBadge status={t.status} /></td>
-                <td className="px-3 py-2 text-right space-x-2">
+              <tr key={t.id} className="border-b border-gray-100 hover:bg-gray-50">
+                <td className="px-4 py-2.5">{t.name}</td>
+                <td className="px-4 py-2.5 text-gray-400 text-xs">{t.categoryName ?? "—"}</td>
+                <td className="px-4 py-2.5">{t.season}</td>
+                <td className="px-4 py-2.5"><StatusBadge status={t.status} /></td>
+                <td className="px-4 py-2.5 text-right space-x-2">
                   <button onClick={() => setTeamModal(t.id)} className="text-nba-gold hover:underline text-xs font-semibold">隊伍</button>
                   <button onClick={() => openEdit(t)} className="text-nba-blue hover:underline text-xs font-semibold">編輯</button>
                   <button onClick={() => { if (confirm("確定刪除？")) remove.mutate(t.id); }} className="text-nba-red hover:underline text-xs font-semibold">刪除</button>
@@ -162,51 +163,54 @@ export default function TournamentAdmin() {
             ))}
           </tbody>
         </table>
+        </div>
       )}
 
       {tab === "categories" && (
-        <table className="w-full text-sm">
-          <thead><tr className="border-b bg-gray-50 text-left text-gray-500">
-            <th className="px-3 py-2">分類名稱</th><th className="px-3 py-2">說明</th><th className="px-3 py-2 text-right">操作</th>
+        <div className="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
+        <table className="w-full text-sm nba-table">
+          <thead><tr className="bg-nba-navy text-white text-[11px] uppercase tracking-wider">
+            <th className="px-4 py-2.5 text-left font-semibold">分類名稱</th><th className="px-4 py-2.5 text-left font-semibold">說明</th><th className="px-4 py-2.5 text-right font-semibold">操作</th>
           </tr></thead>
           <tbody>
             {(categories ?? []).map((c) => (
-              <tr key={c.id} className="border-b hover:bg-gray-50">
-                <td className="px-3 py-2 font-semibold">{c.name}</td>
-                <td className="px-3 py-2 text-gray-400">{c.description ?? "—"}</td>
-                <td className="px-3 py-2 text-right space-x-2">
+              <tr key={c.id} className="border-b border-gray-100 hover:bg-gray-50">
+                <td className="px-4 py-2.5 font-semibold">{c.name}</td>
+                <td className="px-4 py-2.5 text-gray-400">{c.description ?? "—"}</td>
+                <td className="px-4 py-2.5 text-right space-x-2">
                   <button onClick={() => openEditCat(c)} className="text-nba-blue hover:underline text-xs font-semibold">編輯</button>
                   <button onClick={() => { if (confirm("確定刪除？刪除後該分類的賽事將變為未分類。")) removeCat.mutate(c.id); }} className="text-nba-red hover:underline text-xs font-semibold">刪除</button>
                 </td>
               </tr>
             ))}
             {(categories ?? []).length === 0 && (
-              <tr><td colSpan={3} className="px-3 py-6 text-center text-gray-400 text-sm">尚無分類，請新增</td></tr>
+              <tr><td colSpan={3} className="px-4 py-6 text-center text-gray-400 text-sm">尚無分類，請新增</td></tr>
             )}
           </tbody>
         </table>
+        </div>
       )}
 
       {/* Tournament Create/Edit Modal */}
       <Modal open={!!modal} onClose={() => setModal(null)} title={modal?.mode === "edit" ? "編輯賽事" : "新增賽事"}>
         <form onSubmit={(e) => { e.preventDefault(); save.mutate(); }} className="space-y-3">
           <select value={form.categoryId} onChange={(e) => setForm({ ...form, categoryId: e.target.value })}
-            className="w-full rounded border px-3 py-2 text-sm">
+            className="w-full rounded-lg border-2 border-gray-200 px-3 py-2 text-sm focus:outline-none focus:border-nba-blue transition-colors">
             <option value="">無分類</option>
             {(categories ?? []).map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
           <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="賽事名稱" required
-            className="w-full rounded border px-3 py-2 text-sm" />
+            className="w-full rounded-lg border-2 border-gray-200 px-3 py-2 text-sm focus:outline-none focus:border-nba-blue transition-colors" />
           <input value={form.season} onChange={(e) => setForm({ ...form, season: e.target.value })} placeholder="屆次（例如 114年、第一屆）" required
-            className="w-full rounded border px-3 py-2 text-sm" />
+            className="w-full rounded-lg border-2 border-gray-200 px-3 py-2 text-sm focus:outline-none focus:border-nba-blue transition-colors" />
           <div className="flex gap-2">
             <input type="date" value={form.startDate} onChange={(e) => setForm({ ...form, startDate: e.target.value })}
-              className="flex-1 rounded border px-3 py-2 text-sm" />
+              className="flex-1 rounded-lg border-2 border-gray-200 px-3 py-2 text-sm focus:outline-none focus:border-nba-blue transition-colors" />
             <input type="date" value={form.endDate} onChange={(e) => setForm({ ...form, endDate: e.target.value })}
-              className="flex-1 rounded border px-3 py-2 text-sm" />
+              className="flex-1 rounded-lg border-2 border-gray-200 px-3 py-2 text-sm focus:outline-none focus:border-nba-blue transition-colors" />
           </div>
           <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}
-            className="w-full rounded border px-3 py-2 text-sm">
+            className="w-full rounded-lg border-2 border-gray-200 px-3 py-2 text-sm focus:outline-none focus:border-nba-blue transition-colors">
             <option>Upcoming</option><option>Ongoing</option><option>Finished</option>
           </select>
           <button type="submit" className="w-full rounded-lg bg-nba-navy py-2.5 text-sm text-white font-bold uppercase tracking-wider hover:bg-nba-blue transition-colors">
@@ -219,9 +223,9 @@ export default function TournamentAdmin() {
       <Modal open={!!catModal} onClose={() => setCatModal(null)} title={catModal?.mode === "edit" ? "編輯分類" : "新增分類"}>
         <form onSubmit={(e) => { e.preventDefault(); saveCat.mutate(); }} className="space-y-3">
           <input value={catForm.name} onChange={(e) => setCatForm({ ...catForm, name: e.target.value })} placeholder="分類名稱（例如 春燕盃）" required
-            className="w-full rounded border px-3 py-2 text-sm" />
+            className="w-full rounded-lg border-2 border-gray-200 px-3 py-2 text-sm focus:outline-none focus:border-nba-blue transition-colors" />
           <input value={catForm.description} onChange={(e) => setCatForm({ ...catForm, description: e.target.value })} placeholder="說明（選填）"
-            className="w-full rounded border px-3 py-2 text-sm" />
+            className="w-full rounded-lg border-2 border-gray-200 px-3 py-2 text-sm focus:outline-none focus:border-nba-blue transition-colors" />
           <button type="submit" className="w-full rounded-lg bg-nba-navy py-2.5 text-sm text-white font-bold uppercase tracking-wider hover:bg-nba-blue transition-colors">
             {saveCat.isPending ? "儲存中..." : "儲存"}
           </button>
@@ -242,7 +246,7 @@ export default function TournamentAdmin() {
           ))}
         </div>
         <form onSubmit={(e) => { e.preventDefault(); addTeam.mutate(); }} className="flex gap-2">
-          <select value={selectedTeamId} onChange={(e) => setSelectedTeamId(e.target.value)} required className="flex-1 rounded border px-2 py-1.5 text-sm">
+          <select value={selectedTeamId} onChange={(e) => setSelectedTeamId(e.target.value)} required className="flex-1 rounded-lg border-2 border-gray-200 px-2 py-1.5 text-sm focus:outline-none focus:border-nba-blue transition-colors">
             <option value="">選擇隊伍</option>
             {allTeams?.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
           </select>
@@ -265,14 +269,14 @@ export default function TournamentAdmin() {
           ))}
         </div>
         <form onSubmit={(e) => { e.preventDefault(); addToRoster.mutate(); }} className="flex gap-2">
-          <select value={selectedPlayerId} onChange={(e) => setSelectedPlayerId(e.target.value)} required className="flex-1 rounded border px-2 py-1.5 text-sm">
+          <select value={selectedPlayerId} onChange={(e) => setSelectedPlayerId(e.target.value)} required className="flex-1 rounded-lg border-2 border-gray-200 px-2 py-1.5 text-sm focus:outline-none focus:border-nba-blue transition-colors">
             <option value="">選擇球員</option>
             {allPlayers?.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
           <input
             type="number" min="0" placeholder="#"
             value={rosterJersey} onChange={(e) => setRosterJersey(e.target.value)}
-            className="w-16 rounded border px-2 py-1.5 text-sm"
+            className="w-16 rounded-lg border-2 border-gray-200 px-2 py-1.5 text-sm focus:outline-none focus:border-nba-blue transition-colors"
           />
           <button type="submit" className="rounded-lg bg-nba-navy px-3 py-1.5 text-xs text-white font-semibold hover:bg-nba-blue transition-colors">新增</button>
         </form>
